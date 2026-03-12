@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard – CivicConnect CRM</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    .dashboard-layout { display: flex; min-height: 100vh; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .card-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; }
+
+    /* Stats */
+    .stats-grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.1rem; margin-bottom: 2rem; }
+
+    /* Charts grid */
+    .charts-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .charts-grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+
+    /* Table sections */
+    .tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+
+    /* Dept performance bar */
+    .dept-bar-row { display: flex; align-items: center; gap: 1rem; margin-bottom: .85rem; }
+    .dept-bar-label { font-size: .8rem; font-weight: 600; color: var(--text-secondary); width: 120px; flex-shrink: 0; }
+    .dept-bar-wrap { flex: 1; height: 8px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; }
+    .dept-bar-fill { height: 100%; border-radius: 4px; transition: width .8s ease; }
+    .dept-bar-val { font-size: .78rem; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; }
+
+    /* Status dot */
+    .status-dot { display: inline-flex; align-items: center; gap: .4rem; font-size: .78rem; font-weight: 600; }
+    .status-dot::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; }
+    .status-dot.resolved::before { background:var(--accent-teal); }
+    .status-dot.processing::before { background:var(--accent-blue); animation:pulse 1.5s ease infinite; }
+    .status-dot.escalated::before { background:#ef4444; animation:pulse 1.2s ease infinite; }
+    .status-dot.pending::before { background:var(--accent-orange); }
+
+    /* Quick action grid */
+    .quick-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2rem; }
+    .quick-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 14px; padding: 1.25rem; text-align: center;
+      cursor: pointer; transition: all .25s; display: flex; flex-direction: column; align-items: center; gap: .5rem;
+    }
+    .quick-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: var(--shadow-blue); }
+    .quick-card .qc-icon { font-size: 1.6rem; }
+    .quick-card .qc-label { font-size: .82rem; font-weight: 600; color: var(--text-secondary); }
+
+    /* Admin badge */
+    .admin-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(139,92,246,.1); color: var(--accent-purple);
+      border: 1px solid rgba(139,92,246,.3); border-radius: 100px;
+      padding: .25rem .75rem; font-size: .75rem; font-weight: 700;
+    }
+
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.6); z-index: 99; backdrop-filter: blur(4px);
+    }
+    .sidebar-overlay.active { display: block; }
+
+    @media (max-width: 1400px) { .stats-grid-6 { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 1100px) { .charts-grid-2,.charts-grid-3,.tables-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .quick-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 600px) { .stats-grid-6 { grid-template-columns: repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- ===== ADMIN SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="nav-logo" style="width:38px;height:38px;background:linear-gradient(135deg,#8b5cf6,#00d4ff);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;color:#fff;flex-shrink:0;">CC</div>
+      <div>
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:.9rem;">CivicConnect</div>
+        <div style="font-size:.68rem;color:var(--accent-purple);">Admin Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Administration</div>
+      <a href="admin-dashboard.html" class="nav-item active"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="#" class="nav-item"><span class="nav-icon">📋</span> All Complaints <span class="nav-badge">847</span></a>
+      <a href="authority-assignment.html" class="nav-item"><span class="nav-icon">🔀</span> Authority Assignment <span class="nav-badge" style="background:#fb923c;">12</span></a>
+      <a href="#" class="nav-item"><span class="nav-icon">📈</span> Analytics</a>
+      <a href="#" class="nav-item"><span class="nav-icon">🤝</span> NGO Management</a>
+      <a href="#" class="nav-item"><span class="nav-icon">👥</span> Citizen Reports</a>
+      <div class="nav-section-title">System</div>
+      <a href="#" class="nav-item"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="citizen-dashboard.html" class="nav-item"><span class="nav-icon">👤</span> Citizen View</a>
+      <div style="margin-top:auto;padding-top:2rem;">
+        <a href="login.html" class="nav-item" style="color:#ef4444;"><span class="nav-icon">🚪</span> Sign Out</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main-content">
+    <div class="topbar">
+      <button id="sidebarToggle" data-sidebar-toggle style="background:none;border:none;color:var(--text-secondary);font-size:1.3rem;cursor:pointer;">☰</button>
+      <div style="font-family:var(--font-heading);font-weight:700;font-size:1.1rem;margin-right:auto;padding-left:.5rem;">Admin Portal</div>
+      <div class="topbar-actions">
+        <span class="admin-badge">🛡️ Super Admin</span>
+        <button class="notif-btn">🔔 <span class="notif-dot"></span></button>
+        <div class="user-avatar-btn">
+          <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#00d4ff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;">AD</div>
+          <div class="user-info">
+            <span class="user-name">Priya Desai</span>
+            <span class="user-role">Administrator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Greeting -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem;">
+        <div>
+          <div style="font-family:var(--font-heading);font-size:1.4rem;font-weight:700;margin-bottom:.3rem;">Good morning, Priya! 🌅</div>
+          <div style="font-size:.875rem;color:var(--text-secondary);">Here's the system-wide overview for today · Last updated: 11 Mar 2025, 10:00 AM</div>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm">📊 Generate Report</button>
+          <button class="btn btn-primary btn-sm">📢 Send Alert</button>
+        </div>
+      </div>
+
+      <!-- 6 Stats -->
+      <div class="stats-grid-6">
+        <div class="stat-card">
+          <div class="stat-card-header"><div class="stat-icon blue">📊</div><span class="stat-change up">↑ 23</span></div>
+          <div class="stat-value counter" data-target="847">847</div>
+          <div class="stat-label">Total Complaints</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><div class="stat-icon teal">✅</div><span class="stat-change up">↑ 8</span></div>
+          <div class="stat-value counter" data-target="42">42</div>
+          <div class="stat-label">Resolved Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><div class="stat-icon blue">⚡</div><span class="stat-change down">↓ 5</span></div>
+          <div class="stat-value counter" data-target="156">156</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><div class="stat-icon red">🚨</div><span class="stat-change down">↓ 3</span></div>
+          <div class="stat-value counter" data-target="23">23</div>
+          <div class="stat-label">Escalated</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><div class="stat-icon purple">⏱️</div></div>
+          <div class="stat-value" style="font-size:1.6rem;">18h</div>
+          <div class="stat-label">Avg Resolution</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-header"><div class="stat-icon teal">⭐</div><span class="stat-change up">↑ 2%</span></div>
+          <div class="stat-value" style="font-size:1.6rem;">94%</div>
+          <div class="stat-label">Satisfaction Rate</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-grid">
+        <a href="authority-assignment.html" class="quick-card">
+          <div class="qc-icon">🔀</div><div class="qc-label">Assign Complaint</div>
+        </a>
+        <button class="quick-card" id="escalateBtn">
+          <div class="qc-icon">🚨</div><div class="qc-label">Escalate Issue</div>
+        </button>
+        <button class="quick-card" id="notifyBtn">
+          <div class="qc-icon">📢</div><div class="qc-label">Send Notification</div>
+        </button>
+        <button class="quick-card" id="reportBtn">
+          <div class="qc-icon">📄</div><div class="qc-label">Generate Report</div>
+        </button>
+      </div>
+
+      <!-- Charts Row 1: Category Donut + Monthly Trends -->
+      <div class="charts-grid-2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📂 Complaints by Category</span>
+            <span class="badge badge-purple">8 categories</span>
+          </div>
+          <canvas id="categoryChart" height="300"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📈 Monthly Trends</span>
+            <span class="badge badge-blue">Last 6 months</span>
+          </div>
+          <canvas id="trendsChart" height="300"></canvas>
+        </div>
+      </div>
+
+      <!-- Charts Row 2: Dept Performance Bar + Resolution Radial -->
+      <div class="charts-grid-3" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🏢 Department Performance</span>
+            <span class="badge badge-teal">This Month</span>
+          </div>
+          <canvas id="deptChart" height="300"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🎯 Resolution Rate</span>
+          </div>
+          <canvas id="resolutionChart" height="250"></canvas>
+          <div style="text-align:center;margin-top:.5rem;">
+            <div style="font-size:2rem;font-weight:800;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">79.5%</div>
+            <div style="font-size:.78rem;color:var(--text-muted);">Overall Resolution Rate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Heatmap -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <span class="card-title">🌡️ Complaint Frequency Heatmap</span>
+          <span class="badge badge-orange">By Area & Day</span>
+        </div>
+        <canvas id="issueHeatmap" height="300"></canvas>
+      </div>
+
+      <!-- Tables Row -->
+      <div class="tables-grid">
+        <!-- Recent Complaints -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🕐 Recent Complaints</span>
+            <a href="#" style="color:var(--accent-blue);font-size:.8rem;font-weight:600;">View all →</a>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.73rem;">CRM#847510</code></td>
+                  <td><span class="badge badge-teal">Sanitation</span></td>
+                  <td><span class="badge badge-orange">High</span></td>
+                  <td><span class="status-dot processing" style="color:var(--accent-blue);">Processing</span></td>
+                  <td><a href="authority-assignment.html" class="btn btn-sm btn-outline">Assign</a></td>
+                </tr>
+                <tr>
+                  <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.73rem;">CRM#847509</code></td>
+                  <td><span class="badge badge-blue">Roads</span></td>
+                  <td><span class="badge badge-red">Urgent</span></td>
+                  <td><span class="status-dot escalated" style="color:#ef4444;">Escalated</span></td>
+                  <td><a href="authority-assignment.html" class="btn btn-sm btn-outline">Assign</a></td>
+                </tr>
+                <tr>
+                  <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.73rem;">CRM#847508</code></td>
+                  <td><span class="badge badge-purple">Noise</span></td>
+                  <td><span class="badge badge-blue">Low</span></td>
+                  <td><span class="status-dot pending" style="color:var(--accent-orange);">Pending</span></td>
+                  <td><a href="authority-assignment.html" class="btn btn-sm btn-outline">Assign</a></td>
+                </tr>
+                <tr>
+                  <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.73rem;">CRM#847507</code></td>
+                  <td><span class="badge badge-teal">Water</span></td>
+                  <td><span class="badge badge-orange">High</span></td>
+                  <td><span class="status-dot processing" style="color:var(--accent-blue);">Processing</span></td>
+                  <td><a href="authority-assignment.html" class="btn btn-sm btn-outline">Assign</a></td>
+                </tr>
+                <tr>
+                  <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.73rem;">CRM#847506</code></td>
+                  <td><span class="badge badge-orange">Animals</span></td>
+                  <td><span class="badge badge-red">Urgent</span></td>
+                  <td><span class="status-dot resolved" style="color:var(--accent-teal);">Resolved</span></td>
+                  <td><button class="btn btn-sm btn-success" style="padding:.25rem .6rem;font-size:.75rem;">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Department Performance -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🏢 Dept. Resolution Stats</span>
+          </div>
+          <div>
+            <div class="dept-bar-row">
+              <span class="dept-bar-label">Sanitation</span>
+              <div class="dept-bar-wrap"><div class="dept-bar-fill" style="width:87%;background:var(--accent-teal);"></div></div>
+              <span class="dept-bar-val" style="color:var(--accent-teal);">87%</span>
+            </div>
+            <div class="dept-bar-row">
+              <span class="dept-bar-label">Roads</span>
+              <div class="dept-bar-wrap"><div class="dept-bar-fill" style="width:72%;background:var(--accent-blue);"></div></div>
+              <span class="dept-bar-val" style="color:var(--accent-blue);">72%</span>
+            </div>
+            <div class="dept-bar-row">
+              <span class="dept-bar-label">Water Supply</span>
+              <div class="dept-bar-wrap"><div class="dept-bar-fill" style="width:91%;background:var(--accent-teal);"></div></div>
+              <span class="dept-bar-val" style="color:var(--accent-teal);">91%</span>
+            </div>
+            <div class="dept-bar-row">
+              <span class="dept-bar-label">Noise</span>
+              <div class="dept-bar-wrap"><div class="dept-bar-fill" style="width:65%;background:var(--accent-purple);"></div></div>
+              <span class="dept-bar-val" style="color:var(--accent-purple);">65%</span>
+            </div>
+            <div class="dept-bar-row">
+              <span class="dept-bar-label">Animals/NGO</span>
+              <div class="dept-bar-wrap"><div class="dept-bar-fill" style="width:78%;background:var(--accent-orange);"></div></div>
+              <span class="dept-bar-val" style="color:var(--accent-orange);">78%</span>
+            </div>
+            <div class="dept-bar-row">
+              <span class="dept-bar-label">Public Health</span>
+              <div class="dept-bar-wrap"><div class="dept-bar-fill" style="width:95%;background:var(--accent-teal);"></div></div>
+              <span class="dept-bar-val" style="color:var(--accent-teal);">95%</span>
+            </div>
+            <div class="dept-bar-row">
+              <span class="dept-bar-label">Infrastructure</span>
+              <div class="dept-bar-wrap"><div class="dept-bar-fill" style="width:58%;background:#ef4444;"></div></div>
+              <span class="dept-bar-val" style="color:#ef4444;">58%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script src="js/charts.js"></script>
+<script>
+  // Sidebar toggle
+  const toggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  toggle.addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+  // Charts auto-initialized by Charts.initAll() in charts.js
+
+  // Quick actions
+  document.getElementById('escalateBtn').addEventListener('click', () => {
+    CRM.Toast.warning('Escalation panel opened');
+    window.location.href = 'authority-assignment.html';
+  });
+  document.getElementById('notifyBtn').addEventListener('click', () => {
+    CRM.Toast.success('Notification broadcast sent to 847 citizens');
+  });
+  document.getElementById('reportBtn').addEventListener('click', () => {
+    CRM.Toast.info('Generating PDF report...');
+  });
+</script>
+</body>
+</html>

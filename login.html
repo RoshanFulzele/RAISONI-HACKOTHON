@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - CivicConnect CRM</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); position: relative; overflow: hidden; }
+    .login-bg { position: fixed; inset: 0; pointer-events: none; }
+    .login-shape { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12; }
+    .login-shape-1 { width: 600px; height: 600px; background: #00d4ff; top: -200px; right: -200px; animation: floatSlow 10s ease-in-out infinite; }
+    .login-shape-2 { width: 500px; height: 500px; background: #8b5cf6; bottom: -150px; left: -150px; animation: floatSlow 12s ease-in-out infinite reverse; }
+    .grid-bg { position: fixed; inset: 0; }
+    .login-container { width: 100%; max-width: 460px; padding: 1.5rem; z-index: 10; animation: fadeInUp 0.7s ease; }
+    .login-logo { text-align: center; margin-bottom: 2rem; }
+    .login-logo-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #00d4ff, #8b5cf6); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 0.75rem; box-shadow: 0 0 30px rgba(0,212,255,0.4); }
+    .login-logo h1 { font-family: 'Poppins',sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+    .login-logo p { font-size: 0.825rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .login-card { background: rgba(17,24,39,0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+    .login-tabs { display: flex; gap: 0; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 4px; margin-bottom: 1.75rem; border: 1px solid var(--border-color); }
+    .login-tab { flex: 1; padding: 0.6rem; text-align: center; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; color: var(--text-muted); }
+    .login-tab.active { background: var(--gradient-primary); color: #fff; box-shadow: 0 2px 12px rgba(0,212,255,0.3); }
+    .login-form { display: none; }
+    .login-form.active { display: block; animation: fadeIn 0.3s ease; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .input-wrapper { position: relative; }
+    .input-icon { position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.95rem; }
+    .form-control { background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem 1rem 0.75rem 2.5rem; color: var(--text-primary); font-size: 0.9rem; width: 100%; transition: all 0.2s ease; }
+    .form-control:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); background: rgba(0,212,255,0.03); outline: none; }
+    .password-toggle { position: absolute; right: 0.875rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; padding: 0; }
+    .form-check { display: flex; align-items: center; gap: 0.5rem; }
+    .form-check input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-blue); cursor: pointer; }
+    .form-check label { font-size: 0.825rem; color: var(--text-secondary); cursor: pointer; }
+    .forgot-link { font-size: 0.825rem; color: var(--accent-blue); transition: opacity 0.2s; text-decoration: none; }
+    .forgot-link:hover { opacity: 0.8; text-decoration: underline; }
+    .login-btn { width: 100%; padding: 0.85rem; background: var(--gradient-primary); border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; color: #fff; cursor: pointer; margin-top: 1.5rem; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,212,255,0.3); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .login-btn:hover { box-shadow: 0 6px 30px rgba(0,212,255,0.5); transform: translateY(-2px); }
+    .login-btn:active { transform: translateY(0); }
+    .login-divider { display: flex; align-items: center; gap: 1rem; margin: 1.25rem 0; }
+    .login-divider span { flex: 1; height: 1px; background: var(--border-color); }
+    .login-divider p { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+    .social-login { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .social-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.65rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.825rem; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; }
+    .social-btn:hover { border-color: var(--accent-blue); color: var(--text-primary); background: rgba(0,212,255,0.05); }
+    .login-footer { text-align: center; margin-top: 1.5rem; font-size: 0.825rem; color: var(--text-muted); }
+    .login-footer a { color: var(--accent-blue); text-decoration: none; font-weight: 600; }
+    .login-footer a:hover { text-decoration: underline; }
+    .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+    .role-card { padding: 0.75rem 0.5rem; border-radius: 10px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); text-align: center; cursor: pointer; transition: all 0.2s ease; }
+    .role-card.active { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.08); }
+    .role-icon { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+    .role-name { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+    .role-card.active .role-name { color: var(--accent-blue); }
+    .error-msg { color: #ef4444; font-size: 0.78rem; margin-top: 0.3rem; display: none; }
+    .error-msg.visible { display: block; animation: fadeIn 0.3s ease; }
+    /* OTP section */
+    .otp-inputs { display: flex; gap: 0.5rem; justify-content: center; }
+    .otp-input { width: 48px; height: 48px; text-align: center; font-size: 1.2rem; font-weight: 700; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); transition: all 0.2s; }
+    .otp-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); outline: none; }
+  </style>
+</head>
+<body>
+
+<div class="login-bg">
+  <div class="grid-bg"></div>
+  <div class="login-shape login-shape-1"></div>
+  <div class="login-shape login-shape-2"></div>
+</div>
+
+<div class="login-container">
+
+  <div class="login-logo">
+    <div class="login-logo-icon">🏛️</div>
+    <h1>CivicConnect</h1>
+    <p>Multilingual Citizen Complaint &amp; Governance CRM</p>
+  </div>
+
+  <div class="login-card">
+
+    <!-- Role Selector -->
+    <div class="role-selector" id="roleSelector">
+      <div class="role-card active" data-role="citizen">
+        <span class="role-icon">👤</span>
+        <span class="role-name">Citizen</span>
+      </div>
+      <div class="role-card" data-role="admin">
+        <span class="role-icon">🏛️</span>
+        <span class="role-name">Admin</span>
+      </div>
+      <div class="role-card" data-role="authority">
+        <span class="role-icon">⚖️</span>
+        <span class="role-name">Authority</span>
+      </div>
+    </div>
+
+    <!-- Login / Register Tabs -->
+    <div class="login-tabs">
+      <div class="login-tab active" data-tab="login">Sign In</div>
+      <div class="login-tab" data-tab="register">Register</div>
+      <div class="login-tab" data-tab="otp">OTP Verify</div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-form active" id="loginForm">
+      <form id="signInForm" novalidate>
+        <div class="form-group">
+          <label class="form-label">Email / Mobile Number</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📧</span>
+            <input type="text" class="form-control" id="loginEmail" placeholder="Enter email or mobile" autocomplete="username" required />
+          </div>
+          <div class="error-msg" id="emailErr">Please enter a valid email or mobile number</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" required />
+            <button type="button" class="password-toggle" id="pwToggle">👁️</button>
+          </div>
+          <div class="error-msg" id="pwErr">Password must be at least 8 characters</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
+          <div class="form-check">
+            <input type="checkbox" id="rememberMe" />
+            <label for="rememberMe">Remember me</label>
+          </div>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+        <button type="submit" class="login-btn" id="signInBtn">
+          <span>🚀</span> Sign In
+        </button>
+      </form>
+
+      <div class="login-divider">
+        <span></span><p>Or continue with</p><span></span>
+      </div>
+      <div class="social-login">
+        <button class="social-btn" onclick="CRM.Toast.info('Google login will be available soon')">
+          <span>🔍</span> Google
+        </button>
+        <button class="social-btn" onclick="CRM.Toast.info('Aadhaar login will be available soon')">
+          <span>🪪</span> Aadhaar
+        </button>
+      </div>
+
+      <div class="login-footer">
+        Don't have an account? <a href="#" onclick="switchTab('register')">Register here</a>
+      </div>
+    </div>
+
+    <!-- Register Form -->
+    <div class="login-form" id="registerForm">
+      <form id="signUpForm" novalidate>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" class="form-control" placeholder="Enter your full name" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📧</span>
+            <input type="email" class="form-control" placeholder="Enter your email" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile Number</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📱</span>
+            <input type="tel" class="form-control" placeholder="+91 XXXXXXXXXX" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preferred Language</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🌐</span>
+            <select class="form-control" style="padding-left:2.5rem">
+              <option value="en">English</option>
+              <option value="hi">हिंदी (Hindi)</option>
+              <option value="mr">मराठी (Marathi)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Create Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input type="password" class="form-control" placeholder="Minimum 8 characters" required />
+          </div>
+        </div>
+        <div class="form-check" style="margin-bottom:0.5rem">
+          <input type="checkbox" id="agreeTerms" />
+          <label for="agreeTerms">I agree to the <a href="#" style="color:var(--accent-blue)">Terms of Service</a> and <a href="#" style="color:var(--accent-blue)">Privacy Policy</a></label>
+        </div>
+        <button type="submit" class="login-btn">
+          <span>✅</span> Create Account
+        </button>
+      </form>
+      <div class="login-footer">
+        Already have an account? <a href="#" onclick="switchTab('login')">Sign in here</a>
+      </div>
+    </div>
+
+    <!-- OTP Form -->
+    <div class="login-form" id="otpForm">
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <div style="font-size:3rem;margin-bottom:0.75rem">📱</div>
+        <h3 style="font-weight:700;color:var(--text-primary);margin-bottom:0.5rem">Verify your number</h3>
+        <p style="font-size:0.875rem;color:var(--text-secondary)">Enter the 6-digit OTP sent to your mobile number</p>
+      </div>
+      <div class="otp-inputs" style="margin-bottom:1.5rem">
+        <input type="text" class="otp-input" maxlength="1" />
+        <input type="text" class="otp-input" maxlength="1" />
+        <input type="text" class="otp-input" maxlength="1" />
+        <input type="text" class="otp-input" maxlength="1" />
+        <input type="text" class="otp-input" maxlength="1" />
+        <input type="text" class="otp-input" maxlength="1" />
+      </div>
+      <button class="login-btn" id="verifyOtpBtn">
+        <span>✅</span> Verify OTP
+      </button>
+      <div style="text-align:center;margin-top:1rem;font-size:0.825rem;color:var(--text-muted)">
+        Didn't receive? <a href="#" style="color:var(--accent-blue)" id="resendOtp">Resend OTP</a> <span id="otpTimer">(30s)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center;margin-top:1.25rem;font-size:0.8rem;color:var(--text-muted)">
+    🔒 Secured with end-to-end encryption &nbsp;|&nbsp; 🇮🇳 Govt. Certified Platform
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script>
+  // Tab switching
+  function switchTab(tabName) {
+    document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+    const tab = document.querySelector(`.login-tab[data-tab="${tabName}"]`);
+    const form = document.getElementById(`${tabName}Form`);
+    if (tab) tab.classList.add('active');
+    if (form) form.classList.add('active');
+  }
+
+  document.querySelectorAll('.login-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  });
+
+  // Role selector
+  let selectedRole = 'citizen';
+  document.querySelectorAll('.role-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      selectedRole = card.dataset.role;
+    });
+  });
+
+  // Password toggle
+  const pwToggle = document.getElementById('pwToggle');
+  const pwInput = document.getElementById('loginPassword');
+  if (pwToggle && pwInput) {
+    pwToggle.addEventListener('click', () => {
+      const isVisible = pwInput.type === 'text';
+      pwInput.type = isVisible ? 'password' : 'text';
+      pwToggle.textContent = isVisible ? '👁️' : '🙈';
+    });
+  }
+
+  // Sign In form
+  document.getElementById('signInForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const emailErr = document.getElementById('emailErr');
+    const pwErr = document.getElementById('pwErr');
+    let valid = true;
+
+    emailErr.classList.remove('visible');
+    pwErr.classList.remove('visible');
+
+    if (!email) { emailErr.classList.add('visible'); valid = false; }
+    if (password.length < 8) { pwErr.classList.add('visible'); valid = false; }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('signInBtn');
+    btn.innerHTML = '<div class="loader" style="width:18px;height:18px;border-width:2px"></div> Signing in...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      btn.innerHTML = '<span>🚀</span> Sign In';
+      btn.disabled = false;
+      CRM.Toast.success('Login successful! Redirecting...');
+      setTimeout(() => {
+        if (selectedRole === 'admin' || selectedRole === 'authority') {
+          window.location.href = 'admin-dashboard.html';
+        } else {
+          window.location.href = 'citizen-dashboard.html';
+        }
+      }, 1200);
+    }, 1500);
+  });
+
+  // Register form
+  document.getElementById('signUpForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!document.getElementById('agreeTerms').checked) {
+      CRM.Toast.error('Please accept the Terms of Service');
+      return;
+    }
+    const btn = this.querySelector('[type="submit"]');
+    btn.innerHTML = '<div class="loader" style="width:18px;height:18px;border-width:2px"></div> Creating account...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = '<span>✅</span> Create Account';
+      btn.disabled = false;
+      CRM.Toast.success('Account created! Please verify your OTP.');
+      switchTab('otp');
+      startOtpTimer();
+    }, 1500);
+  });
+
+  // OTP inputs
+  document.querySelectorAll('.otp-input').forEach((input, i, all) => {
+    input.addEventListener('input', (e) => {
+      if (e.target.value && i < all.length - 1) all[i + 1].focus();
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !input.value && i > 0) all[i - 1].focus();
+    });
+  });
+
+  document.getElementById('verifyOtpBtn')?.addEventListener('click', () => {
+    const otp = Array.from(document.querySelectorAll('.otp-input')).map(i => i.value).join('');
+    if (otp.length < 6) { CRM.Toast.error('Please enter all 6 digits'); return; }
+    const btn = document.getElementById('verifyOtpBtn');
+    btn.innerHTML = '<div class="loader" style="width:18px;height:18px;border-width:2px"></div> Verifying...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = '<span>✅</span> Verify OTP';
+      btn.disabled = false;
+      CRM.Toast.success('OTP verified! Welcome to CivicConnect.');
+      setTimeout(() => { window.location.href = 'citizen-dashboard.html'; }, 1000);
+    }, 1500);
+  });
+
+  // OTP Timer
+  let timerInterval;
+  function startOtpTimer() {
+    let seconds = 30;
+    const timerEl = document.getElementById('otpTimer');
+    const resendEl = document.getElementById('resendOtp');
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds--;
+      if (timerEl) timerEl.textContent = `(${seconds}s)`;
+      if (seconds <= 0) {
+        clearInterval(timerInterval);
+        if (timerEl) timerEl.textContent = '';
+        if (resendEl) resendEl.style.fontWeight = '700';
+      }
+    }, 1000);
+  }
+
+  document.getElementById('resendOtp')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    CRM.Toast.info('OTP resent to your mobile number');
+    startOtpTimer();
+  });
+</script>
+</body>
+</html>
