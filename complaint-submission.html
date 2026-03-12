@@ -541,7 +541,10 @@
   let recognition = null;
   voiceBtn.addEventListener('click', () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Speech recognition not supported in this browser.'); return;
+      alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.'); return;
+    }
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      alert('Voice input requires a secure (HTTPS) connection.'); return;
     }
     if (recognition) { recognition.stop(); recognition = null; voiceBtn.classList.remove('recording'); voiceBtn.textContent = '🎙️ Voice Input'; return; }
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -552,7 +555,17 @@
       desc.value += evt.results[0][0].transcript + ' ';
       charCount.textContent = desc.value.length;
     };
-    recognition.onend = () => { recognition = null; voiceBtn.classList.remove('recording'); voiceBtn.innerHTML = '🎙️ Voice Input'; };
+    recognition.onerror = evt => {
+      let msg = 'Voice input failed. Please try again.';
+      if (evt.error === 'no-speech') msg = 'No speech detected. Please try again.';
+      else if (evt.error === 'audio-capture') msg = 'No microphone found. Please check your device.';
+      else if (evt.error === 'not-allowed') msg = 'Microphone access denied. Please allow microphone permission.';
+      alert(msg);
+      recognition = null;
+      voiceBtn.classList.remove('recording');
+      voiceBtn.textContent = '🎙️ Voice Input';
+    };
+    recognition.onend = () => { recognition = null; voiceBtn.classList.remove('recording'); voiceBtn.textContent = '🎙️ Voice Input'; };
     recognition.start();
     voiceBtn.classList.add('recording');
     voiceBtn.innerHTML = '⏹️ Stop Recording';
