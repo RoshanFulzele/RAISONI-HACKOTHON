@@ -289,7 +289,7 @@
     pwErr.classList.remove('visible');
 
     if (!email) { emailErr.classList.add('visible'); valid = false; }
-    if (password.length < 6) { pwErr.classList.add('visible'); valid = false; }
+    if (password.length < 8) { pwErr.classList.add('visible'); valid = false; }
 
     if (!valid) return;
 

@@ -409,7 +409,8 @@
   document.getElementById('shareBtn').addEventListener('click', () => {
     navigator.clipboard.writeText(window.location.href).then(() => {
       CRM.Toast.success('Tracking link copied to clipboard!');
-      else alert('Link copied!');
+    }).catch(() => {
+      alert('Link copied!');
     });
   });
 
