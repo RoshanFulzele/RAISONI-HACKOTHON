@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Support – CivicConnect CRM</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    /* ===== Support-specific styles ===== */
+    body { padding-top: var(--nav-height); }
+
+    .support-hero {
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+      background: radial-gradient(ellipse at top, rgba(0,212,255,.08) 0%, transparent 70%),
+                  radial-gradient(ellipse at bottom, rgba(139,92,246,.06) 0%, transparent 70%);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .support-hero h1 { font-family: var(--font-heading); font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.2; }
+    .support-hero p { font-size: 1.05rem; color: var(--text-secondary); max-width: 560px; margin: 0 auto 2.5rem; }
+
+    /* Search bar */
+    .hero-search { display: flex; max-width: 520px; margin: 0 auto; gap: .75rem; flex-wrap: wrap; }
+    .hero-search input {
+      flex: 1; min-width: 200px;
+      background: rgba(255,255,255,.05); border: 2px solid var(--border-color);
+      border-radius: 14px; padding: .85rem 1.25rem; color: var(--text-primary);
+      font-size: .95rem; font-family: var(--font-primary); transition: all .2s;
+    }
+    .hero-search input:focus { border-color: var(--accent-blue); outline: none; }
+    .hero-search button { padding: .85rem 1.75rem; }
+
+    /* Quick actions */
+    .quick-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem;
+      max-width: 900px; margin: 0 auto;
+    }
+    .quick-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 16px; padding: 1.5rem; text-align: center;
+      cursor: pointer; transition: all .25s; display: flex; flex-direction: column;
+      align-items: center; gap: .6rem; text-decoration: none; color: var(--text-primary);
+    }
+    .quick-card:hover { border-color: var(--accent-blue); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,212,255,.15); }
+    .quick-card .qc-icon { font-size: 2rem; }
+    .quick-card .qc-label { font-size: .875rem; font-weight: 700; }
+    .quick-card .qc-sub { font-size: .75rem; color: var(--text-muted); }
+
+    /* FAQ */
+    .faq-item { border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: .75rem; overflow: hidden; transition: border-color .2s; }
+    .faq-item.open { border-color: var(--accent-blue); }
+    .faq-question {
+      padding: 1.1rem 1.25rem; font-weight: 600; font-size: .9rem;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; background: var(--bg-card); transition: background .2s;
+    }
+    .faq-question:hover { background: var(--bg-card-hover); }
+    .faq-icon { font-size: 1.1rem; transition: transform .3s; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .3s ease;
+      background: rgba(255,255,255,.02); font-size: .875rem; color: var(--text-secondary); padding: 0 1.25rem;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; padding: 1rem 1.25rem; }
+
+    /* Help topics */
+    .topics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .topic-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 14px; padding: 1.25rem; transition: all .25s; cursor: pointer;
+    }
+    .topic-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: var(--shadow-blue); }
+    .topic-card .t-icon { font-size: 1.8rem; margin-bottom: .5rem; }
+    .topic-card .t-title { font-weight: 700; font-size: .9rem; margin-bottom: .3rem; }
+    .topic-card .t-desc { font-size: .78rem; color: var(--text-muted); }
+    .topic-card .t-links { margin-top: .75rem; display: flex; flex-direction: column; gap: .3rem; }
+    .topic-card .t-link { font-size: .78rem; color: var(--accent-blue); cursor: pointer; }
+    .topic-card .t-link:hover { text-decoration: underline; }
+
+    /* Contact section */
+    .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .contact-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 16px; padding: 1.5rem; text-align: center; transition: all .25s;
+    }
+    .contact-card:hover { border-color: var(--accent-blue); box-shadow: var(--shadow-blue); }
+    .contact-card .cc-icon { font-size: 2.2rem; margin-bottom: .75rem; }
+    .contact-card .cc-title { font-weight: 700; font-size: 1rem; margin-bottom: .3rem; }
+    .contact-card .cc-detail { font-size: .875rem; color: var(--text-secondary); }
+    .contact-card .cc-hours { font-size: .75rem; color: var(--text-muted); margin-top: .5rem; }
+    .contact-card .cc-action { margin-top: 1rem; }
+
+    /* Support hours alert */
+    .hours-banner {
+      background: linear-gradient(135deg, rgba(0,212,255,.08), rgba(139,92,246,.08));
+      border: 1px solid rgba(0,212,255,.2); border-radius: 14px;
+      padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .hours-banner .hb-icon { font-size: 2rem; flex-shrink: 0; }
+    .hours-banner .hb-title { font-weight: 700; font-size: .95rem; margin-bottom: .2rem; }
+    .hours-banner .hb-sub { font-size: .82rem; color: var(--text-secondary); }
+
+    /* Live chat widget */
+    .chat-bubble {
+      position: fixed; bottom: 2rem; right: 2rem;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: var(--gradient-primary); display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; cursor: pointer; box-shadow: var(--glow-blue);
+      z-index: 500; transition: all .25s; border: none; animation: float 3s ease infinite;
+    }
+    .chat-bubble:hover { transform: scale(1.1); }
+    .chat-bubble .chat-notif {
+      position: absolute; top: 0; right: 0; width: 18px; height: 18px;
+      background: #ef4444; border-radius: 50%; font-size: .65rem; font-weight: 700;
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--bg-primary);
+    }
+
+    .chat-panel {
+      position: fixed; bottom: 6.5rem; right: 2rem; width: 340px;
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 20px; z-index: 500; display: none;
+      box-shadow: var(--shadow-lg); overflow: hidden;
+      animation: slideUp .3s ease;
+    }
+    .chat-panel.open { display: flex; flex-direction: column; }
+    .chat-header {
+      padding: 1rem 1.25rem; background: var(--gradient-primary);
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .chat-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .chat-agent-name { font-weight: 700; font-size: .9rem; color: #fff; }
+    .chat-online { font-size: .72rem; color: rgba(255,255,255,.8); }
+    .chat-close { margin-left:auto; background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer; }
+    .chat-messages { flex:1; max-height:260px; overflow-y:auto; padding:1rem; display:flex; flex-direction:column; gap:.6rem; }
+    .chat-msg {
+      max-width: 78%; padding: .6rem .85rem; border-radius: 12px; font-size: .82rem; line-height: 1.4;
+    }
+    .chat-msg.agent { background: rgba(255,255,255,.06); color: var(--text-primary); align-self: flex-start; border-radius: 4px 12px 12px 12px; }
+    .chat-msg.user { background: rgba(0,212,255,.12); color: var(--text-primary); align-self: flex-end; border-radius: 12px 4px 12px 12px; }
+    .chat-msg-time { font-size: .65rem; color: var(--text-muted); margin-top: .2rem; }
+    .chat-input-row { display: flex; gap: .5rem; padding: .75rem 1rem; border-top: 1px solid var(--border-color); }
+    .chat-input-row input {
+      flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: .5rem .85rem; color: var(--text-primary);
+      font-size: .82rem; font-family: var(--font-primary);
+    }
+    .chat-input-row input:focus { outline: none; border-color: var(--accent-blue); }
+    .chat-send { width: 36px; height: 36px; background: var(--gradient-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; font-size: 1rem; }
+
+    /* Section containers */
+    .support-section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-title { font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; margin-bottom: .5rem; }
+    .section-sub { font-size: .9rem; color: var(--text-secondary); margin-bottom: 2rem; }
+
+    /* Gradient text */
+    .gradient-text { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    @media (max-width: 900px) { .quick-grid, .topics-grid, .contact-grid { grid-template-columns: repeat(2,1fr); } .support-hero h1 { font-size: 2rem; } }
+    @media (max-width: 600px) { .quick-grid { grid-template-columns: repeat(2,1fr); } .topics-grid, .contact-grid { grid-template-columns: 1fr; } .chat-panel { width: calc(100vw - 2rem); right: 1rem; } }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar scrolled" id="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">CC</div>
+    <div class="nav-brand-text">
+      <span class="brand-name">CivicConnect</span>
+      <span class="brand-tag">GovTech Platform</span>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="citizen-dashboard.html">Dashboard</a></li>
+    <li><a href="complaint-submission.html">Report Issue</a></li>
+    <li><a href="complaint-tracking.html">Track</a></li>
+    <li><a href="customer-support.html" class="active">Support</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+    <a href="complaint-submission.html" class="btn btn-primary btn-sm">Report Issue</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="support-hero">
+  <div style="margin-bottom:1rem;">
+    <span class="badge badge-teal animate-pulse">💬 Live Support Available</span>
+  </div>
+  <h1>We're Here to <span class="gradient-text">Help</span> 💬</h1>
+  <p>Have questions, need help with your complaint, or want to learn about the platform? Our support team and resources are here 24/7 for urgent issues.</p>
+  <div class="hero-search">
+    <input type="text" id="supportSearch" placeholder="Search help articles, FAQs..." />
+    <button class="btn btn-primary" id="searchBtn">🔍 Search</button>
+  </div>
+</section>
+
+<!-- ===== QUICK ACTIONS ===== -->
+<section class="support-section" style="padding-top:3rem;padding-bottom:3rem;">
+  <div class="section-title">⚡ Quick Actions</div>
+  <div class="section-sub">Jump straight to what you need</div>
+  <div class="quick-grid">
+    <a href="complaint-tracking.html" class="quick-card">
+      <div class="qc-icon">🔍</div>
+      <div class="qc-label">Track Complaint</div>
+      <div class="qc-sub">Check your complaint status</div>
+    </a>
+    <a href="complaint-submission.html" class="quick-card">
+      <div class="qc-icon">📝</div>
+      <div class="qc-label">Submit New</div>
+      <div class="qc-sub">Report a civic issue</div>
+    </a>
+    <div class="quick-card" onclick="openChat()">
+      <div class="qc-icon">📞</div>
+      <div class="qc-label">Live Chat</div>
+      <div class="qc-sub">Chat with support agent</div>
+    </div>
+    <a href="mailto:support@civicconnect.gov.in" class="quick-card">
+      <div class="qc-icon">📧</div>
+      <div class="qc-label">Email Us</div>
+      <div class="qc-sub">support@civicconnect.gov.in</div>
+    </a>
+  </div>
+</section>
+
+<!-- ===== SUPPORT HOURS ===== -->
+<section style="padding: 0 2rem 3rem; max-width: 1100px; margin: 0 auto;">
+  <div class="hours-banner">
+    <div class="hb-icon">🕐</div>
+    <div>
+      <div class="hb-title">Support Hours</div>
+      <div class="hb-sub">
+        <strong style="color:var(--accent-teal);">24/7</strong> for Urgent &amp; High-priority issues ·
+        <strong style="color:var(--accent-blue);">9AM–6PM</strong> Mon–Sat for General enquiries ·
+        <strong style="color:var(--accent-purple);">10AM–4PM</strong> Sundays
+      </div>
+    </div>
+    <div style="margin-left:auto;flex-shrink:0;">
+      <div style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,255,200,.1);border:1px solid rgba(0,255,200,.3);border-radius:100px;padding:.3rem .85rem;font-size:.8rem;color:var(--accent-teal);font-weight:700;">
+        🟢 Online Now
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="support-section" style="padding-top:0;">
+  <div class="section-title">❓ Frequently Asked Questions</div>
+  <div class="section-sub">Find quick answers to common questions</div>
+  <div id="faqContainer">
+    <div class="faq-item open">
+      <div class="faq-question">
+        <span>How do I submit a complaint on CivicConnect?</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        To submit a complaint, click on "Report Issue" or navigate to <a href="complaint-submission.html" style="color:var(--accent-blue);">complaint-submission.html</a>. Fill in the title, category, priority, description, and location. You can also attach photo evidence and use voice input for hands-free reporting. Once submitted, you'll receive a unique tracking ID via SMS and email.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Which languages are supported for submitting complaints?</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        CivicConnect supports English, Hindi (हिंदी), and Marathi (मराठी). Simply select your preferred language from the pill buttons at the top of the submission form. Voice input also works in all three languages using your device's microphone.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How long does it take to resolve a complaint?</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        Resolution times vary by category. Sanitation complaints are targeted for 48 hours, Water Supply and Noise within 24 hours, and Stray Animal issues within 6 hours. Roads and Infrastructure may take up to 72 hours. Urgent issues are automatically escalated if not addressed within these SLA windows.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Can I submit a complaint anonymously?</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        Yes! Toggle the "Submit Anonymously" option on the submission form. Your identity will be kept confidential and will not be shared with the assigned authority. However, providing contact details allows us to send you status updates and the tracking ID.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What happens if my complaint is not resolved in time?</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        If a complaint is not resolved within its SLA window, it is automatically escalated to the Head Department. You'll receive an escalation notification via SMS/email. You can also manually request escalation from the complaint tracking page. Escalated complaints are given top priority.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Is CivicConnect accessible for people with disabilities?</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        Absolutely. CivicConnect is designed with accessibility in mind. It supports voice input for submitting complaints without typing, works with screen readers, has high-contrast visual design, and supports keyboard navigation throughout the platform. We are committed to inclusive governance.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HELP TOPICS ===== -->
+<section class="support-section" style="padding-top:0;">
+  <div class="section-title">📚 Help Topics</div>
+  <div class="section-sub">Browse our detailed guides and tutorials</div>
+  <div class="topics-grid">
+    <div class="topic-card">
+      <div class="t-icon">🚀</div>
+      <div class="t-title">Getting Started</div>
+      <div class="t-desc">Everything you need to create your account and set up your profile.</div>
+      <div class="t-links">
+        <span class="t-link">→ Creating an account</span>
+        <span class="t-link">→ Setting up your profile</span>
+        <span class="t-link">→ Platform overview</span>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="t-icon">📝</div>
+      <div class="t-title">How to Submit</div>
+      <div class="t-desc">Step-by-step guide to filing an effective complaint with evidence.</div>
+      <div class="t-links">
+        <span class="t-link">→ Writing a good description</span>
+        <span class="t-link">→ Attaching photos</span>
+        <span class="t-link">→ Using voice input</span>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="t-icon">🌍</div>
+      <div class="t-title">Language Support</div>
+      <div class="t-desc">Learn how to use Hindi and Marathi for submitting complaints.</div>
+      <div class="t-links">
+        <span class="t-link">→ Switching languages</span>
+        <span class="t-link">→ Voice input in Hindi</span>
+        <span class="t-link">→ Marathi keyboard tips</span>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="t-icon">🔍</div>
+      <div class="t-title">Track Status</div>
+      <div class="t-desc">Real-time tracking, notifications, and reading your timeline.</div>
+      <div class="t-links">
+        <span class="t-link">→ Understanding the timeline</span>
+        <span class="t-link">→ SMS/Email notifications</span>
+        <span class="t-link">→ Sharing your tracking link</span>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="t-icon">🚨</div>
+      <div class="t-title">Escalation Process</div>
+      <div class="t-desc">When and how complaints get escalated to senior authorities.</div>
+      <div class="t-links">
+        <span class="t-link">→ SLA windows explained</span>
+        <span class="t-link">→ Manual escalation</span>
+        <span class="t-link">→ Head Department contact</span>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="t-icon">♿</div>
+      <div class="t-title">Accessibility</div>
+      <div class="t-desc">Features for differently-abled citizens to use the platform.</div>
+      <div class="t-links">
+        <span class="t-link">→ Screen reader support</span>
+        <span class="t-link">→ Keyboard navigation</span>
+        <span class="t-link">→ Voice-only submission</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT SECTION ===== -->
+<section class="support-section" style="padding-top:0;">
+  <div class="section-title">📞 Contact Support</div>
+  <div class="section-sub">Reach us through your preferred channel</div>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <div class="cc-icon">📞</div>
+      <div class="cc-title">Call Us</div>
+      <div class="cc-detail" style="font-size:1.2rem;font-weight:700;color:var(--accent-blue);">1800-CIVIC-1</div>
+      <div class="cc-detail">Toll Free · Available 24/7</div>
+      <div class="cc-hours">Avg hold time: &lt;2 minutes</div>
+      <div class="cc-action"><a href="tel:1800242421" class="btn btn-primary btn-sm">Call Now</a></div>
+    </div>
+    <div class="contact-card">
+      <div class="cc-icon">📧</div>
+      <div class="cc-title">Email Support</div>
+      <div class="cc-detail" style="color:var(--accent-blue);">support@civicconnect.gov.in</div>
+      <div class="cc-detail" style="margin-top:.3rem;">For general enquiries &amp; feedback</div>
+      <div class="cc-hours">Response within 4 hours on weekdays</div>
+      <div class="cc-action"><a href="mailto:support@civicconnect.gov.in" class="btn btn-secondary btn-sm">Send Email</a></div>
+    </div>
+    <div class="contact-card">
+      <div class="cc-icon">💬</div>
+      <div class="cc-title">Live Chat</div>
+      <div class="cc-detail">Chat with our AI assistant</div>
+      <div class="cc-detail" style="margin-top:.3rem;">or connect to a human agent</div>
+      <div class="cc-hours">Human agents: 9AM–10PM daily</div>
+      <div class="cc-action"><button class="btn btn-primary btn-sm" onclick="openChat()">Start Chat</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="padding: 2.5rem 2rem; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-muted); font-size: .85rem;">
+  <div style="max-width:900px;margin:0 auto;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:1rem;">
+      <div style="width:32px;height:32px;background:var(--gradient-primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.85rem;">CC</div>
+      <span style="font-family:var(--font-heading);font-weight:700;font-size:.95rem;color:var(--text-primary);">CivicConnect</span>
+    </div>
+    <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <a href="index.html" style="color:var(--text-secondary);font-size:.82rem;">Home</a>
+      <a href="citizen-dashboard.html" style="color:var(--text-secondary);font-size:.82rem;">Dashboard</a>
+      <a href="complaint-submission.html" style="color:var(--text-secondary);font-size:.82rem;">Submit Complaint</a>
+      <a href="complaint-tracking.html" style="color:var(--text-secondary);font-size:.82rem;">Track</a>
+      <a href="admin-dashboard.html" style="color:var(--text-secondary);font-size:.82rem;">Admin</a>
+    </div>
+    <div>© 2025 CivicConnect GovTech Platform · Built for citizens, by citizens.</div>
+  </div>
+</footer>
+
+<!-- ===== LIVE CHAT WIDGET ===== -->
+<button class="chat-bubble" id="chatBubble" onclick="openChat()">
+  💬
+  <div class="chat-notif">1</div>
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div>
+      <div class="chat-agent-name">CivicBot Support</div>
+      <div class="chat-online">🟢 Online · Typically replies instantly</div>
+    </div>
+    <button class="chat-close" id="chatClose">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg agent">
+      👋 Hello! I'm CivicBot. How can I help you today?
+      <div class="chat-msg-time">Now</div>
+    </div>
+    <div class="chat-msg agent">
+      You can ask me about tracking your complaint, submitting a new issue, or get help with the platform.
+      <div class="chat-msg-time">Now</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem;">
+      <button class="btn btn-outline btn-sm" style="font-size:.72rem;padding:.3rem .65rem;" onclick="sendChatMsg('Track my complaint')">Track complaint</button>
+      <button class="btn btn-outline btn-sm" style="font-size:.72rem;padding:.3rem .65rem;" onclick="sendChatMsg('How to submit?')">How to submit?</button>
+      <button class="btn btn-outline btn-sm" style="font-size:.72rem;padding:.3rem .65rem;" onclick="sendChatMsg('Talk to a human')">Human agent</button>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Type a message..." />
+    <button class="chat-send" id="chatSend">➤</button>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script src="js/charts.js"></script>
+<script>
+  // FAQ accordion
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  // Chat widget
+  function openChat() {
+    document.getElementById('chatPanel').classList.add('open');
+    document.getElementById('chatBubble').querySelector('.chat-notif').style.display = 'none';
+  }
+  document.getElementById('chatClose').addEventListener('click', () => {
+    document.getElementById('chatPanel').classList.remove('open');
+  });
+
+  const botReplies = {
+    'track': 'You can track your complaint at <a href="complaint-tracking.html" style="color:var(--accent-blue);">this link</a>. Enter your CRM# tracking ID to see real-time status.',
+    'submit': 'To submit a complaint, go to our <a href="complaint-submission.html" style="color:var(--accent-blue);">Submission Form</a>. Fill in the details, add photos if available, and hit Submit!',
+    'human': "I'm connecting you to a human agent. Please hold for 1–2 minutes. 🙏",
+    'default': "I understand. Let me check that for you. Can you provide more details or your complaint ID (e.g., CRM#847291)?"
+  };
+
+  function sendChatMsg(text) {
+    if (!text) text = document.getElementById('chatInput').value.trim();
+    if (!text) return;
+    const msgs = document.getElementById('chatMessages');
+    const now = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+
+    // User message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-msg user';
+    userMsg.innerHTML = text + `<div class="chat-msg-time">${now}</div>`;
+    msgs.appendChild(userMsg);
+    document.getElementById('chatInput').value = '';
+
+    // Bot response
+    setTimeout(() => {
+      const lower = text.toLowerCase();
+      let reply = botReplies.default;
+      if (lower.includes('track')) reply = botReplies.track;
+      else if (lower.includes('submit') || lower.includes('how')) reply = botReplies.submit;
+      else if (lower.includes('human') || lower.includes('agent')) reply = botReplies.human;
+      const botMsg = document.createElement('div');
+      botMsg.className = 'chat-msg agent';
+      botMsg.innerHTML = reply + `<div class="chat-msg-time">${now}</div>`;
+      msgs.appendChild(botMsg);
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 800);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  document.getElementById('chatSend').addEventListener('click', () => sendChatMsg(''));
+  document.getElementById('chatInput').addEventListener('keypress', e => { if (e.key === 'Enter') sendChatMsg(''); });
+
+  // Search
+  document.getElementById('searchBtn').addEventListener('click', () => {
+    const q = document.getElementById('supportSearch').value.toLowerCase();
+    if (!q) return;
+    let found = false;
+    document.querySelectorAll('.faq-item').forEach(item => {
+      if (item.textContent.toLowerCase().includes(q)) {
+        item.classList.add('open');
+        item.scrollIntoView({ behavior:'smooth', block:'center' });
+        found = true;
+      }
+    });
+    if (!found) CRM.Toast.info('No exact match. Try a different keyword.');
+  });
+  document.getElementById('supportSearch').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('searchBtn').click(); });
+</script>
+</body>
+</html>

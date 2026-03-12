@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authority Assignment – CivicConnect CRM</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    .dashboard-layout { display: flex; min-height: 100vh; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .card-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; }
+
+    /* Bulk toolbar */
+    .bulk-toolbar {
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+      padding: .85rem 1.25rem; background: rgba(0,212,255,.06); border: 1px solid rgba(0,212,255,.2);
+      border-radius: 12px; margin-bottom: 1.25rem;
+    }
+    .bulk-toolbar .bt-count { font-size: .82rem; color: var(--accent-blue); font-weight: 700; margin-right: auto; }
+
+    /* Capacity bars */
+    .cap-item { margin-bottom: 1rem; }
+    .cap-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .35rem; }
+    .cap-name { font-size: .82rem; font-weight: 600; color: var(--text-secondary); }
+    .cap-pct { font-size: .78rem; font-weight: 700; }
+    .cap-bar { height: 8px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; }
+    .cap-bar-fill { height: 100%; border-radius: 4px; transition: width .8s ease; }
+
+    /* Escalation alert */
+    .esc-item {
+      padding: .85rem 1rem; border-radius: 12px;
+      background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.2);
+      display: flex; align-items: center; gap: 1rem; margin-bottom: .75rem; flex-wrap: wrap;
+    }
+    .esc-item .esc-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .esc-item .esc-body { flex: 1; }
+    .esc-title { font-size: .85rem; font-weight: 700; color: var(--text-primary); }
+    .esc-meta { font-size: .75rem; color: var(--text-muted); margin-top: .15rem; }
+
+    /* NGO assign card */
+    .ngo-card {
+      padding: .85rem 1rem; border-radius: 12px; background: rgba(139,92,246,.05);
+      border: 1px solid rgba(139,92,246,.2); display: flex; align-items: center;
+      gap: 1rem; margin-bottom: .75rem; flex-wrap: wrap;
+    }
+    .ngo-logo { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: rgba(139,92,246,.15); flex-shrink: 0; }
+
+    /* Status dot */
+    .status-dot { display: inline-flex; align-items: center; gap: .4rem; font-size: .78rem; font-weight: 600; }
+    .status-dot::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; }
+    .status-dot.pending::before { background:var(--accent-orange); }
+    .status-dot.unassigned::before { background:#ef4444; animation:pulse 1.2s ease infinite; }
+
+    /* Filters row */
+    .filter-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .filter-pill {
+      padding: .35rem .9rem; border-radius: 100px; border: 1px solid var(--border-color);
+      font-size: .78rem; font-weight: 600; cursor: pointer; background: transparent;
+      color: var(--text-secondary); transition: all .2s;
+    }
+    .filter-pill.active { background: rgba(0,212,255,.1); color: var(--accent-blue); border-color: rgba(0,212,255,.3); }
+
+    /* Overdue badge */
+    .overdue-badge { background: rgba(239,68,68,.12); color: #ef4444; border: 1px solid rgba(239,68,68,.2); border-radius: 100px; padding: .15rem .55rem; font-size: .7rem; font-weight: 700; }
+
+    /* Modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(6px); }
+    .modal-overlay.open { display:flex; }
+    .modal-box { background:var(--bg-card); border:1px solid var(--border-color); border-radius:20px; padding:2rem; max-width:480px; width:90%; animation:slideUp .35s ease; max-height:90vh; overflow-y:auto; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; }
+    .modal-title { font-family:var(--font-heading); font-size:1.1rem; font-weight:700; }
+    .modal-close { background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer; }
+    .form-group { margin-bottom:1.1rem; }
+    .form-label { font-size:.8rem; font-weight:600; color:var(--text-secondary); margin-bottom:.4rem; display:block; }
+
+    .sidebar-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.6); z-index:99; backdrop-filter:blur(4px);
+    }
+    .sidebar-overlay.active { display:block; }
+
+    @media (max-width:1100px) { .assign-layout { grid-template-columns:1fr !important; } }
+  </style>
+</head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- ===== ADMIN SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="nav-logo" style="width:38px;height:38px;background:linear-gradient(135deg,#8b5cf6,#00d4ff);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;color:#fff;flex-shrink:0;">CC</div>
+      <div>
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:.9rem;">CivicConnect</div>
+        <div style="font-size:.68rem;color:var(--accent-purple);">Admin Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Administration</div>
+      <a href="admin-dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="#" class="nav-item"><span class="nav-icon">📋</span> All Complaints <span class="nav-badge">847</span></a>
+      <a href="authority-assignment.html" class="nav-item active"><span class="nav-icon">🔀</span> Authority Assignment <span class="nav-badge" style="background:#fb923c;">12</span></a>
+      <a href="#" class="nav-item"><span class="nav-icon">📈</span> Analytics</a>
+      <a href="#" class="nav-item"><span class="nav-icon">🤝</span> NGO Management</a>
+      <a href="#" class="nav-item"><span class="nav-icon">👥</span> Citizen Reports</a>
+      <div class="nav-section-title">System</div>
+      <a href="#" class="nav-item"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="citizen-dashboard.html" class="nav-item"><span class="nav-icon">👤</span> Citizen View</a>
+      <div style="margin-top:auto;padding-top:2rem;">
+        <a href="login.html" class="nav-item" style="color:#ef4444;"><span class="nav-icon">🚪</span> Sign Out</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main-content">
+    <div class="topbar">
+      <button id="sidebarToggle" data-sidebar-toggle style="background:none;border:none;color:var(--text-secondary);font-size:1.3rem;cursor:pointer;">☰</button>
+      <div style="font-family:var(--font-heading);font-weight:700;font-size:1.1rem;margin-right:auto;padding-left:.5rem;">Authority Assignment Panel</div>
+      <div class="topbar-actions">
+        <button class="notif-btn">🔔 <span class="notif-dot"></span></button>
+        <div class="user-avatar-btn">
+          <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#00d4ff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;">AD</div>
+          <div class="user-info">
+            <span class="user-name">Priya Desai</span>
+            <span class="user-role">Administrator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Bulk Toolbar -->
+      <div class="bulk-toolbar">
+        <input type="checkbox" id="selectAll" style="cursor:pointer;" />
+        <span class="bt-count" id="selCount">0 complaints selected</span>
+        <button class="btn btn-secondary btn-sm" id="assignSelected">🔀 Assign Selected</button>
+        <button class="btn btn-outline btn-sm" id="escalateSelected" style="border-color:#ef4444;color:#ef4444;">🚨 Escalate Selected</button>
+        <button class="btn btn-outline btn-sm">📢 Notify Citizens</button>
+      </div>
+
+      <!-- Main Layout: Unassigned + Dept Capacity -->
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:1.5rem;" class="assign-layout">
+
+        <!-- Unassigned Complaints -->
+        <div>
+          <div class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header">
+              <span class="card-title">📋 Unassigned Complaints</span>
+              <span class="badge badge-red">12 pending</span>
+            </div>
+            <div class="filter-row">
+              <button class="filter-pill active" data-af="all">All</button>
+              <button class="filter-pill" data-af="urgent">🔴 Urgent</button>
+              <button class="filter-pill" data-af="high">🟠 High</button>
+              <button class="filter-pill" data-af="sanitation">Sanitation</button>
+              <button class="filter-pill" data-af="roads">Roads</button>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="unassignedTable">
+                <thead>
+                  <tr>
+                    <th style="width:36px;"><input type="checkbox" class="rowCheck" style="cursor:pointer;" /></th>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Submitted</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type="checkbox" class="rowCheck" style="cursor:pointer;" /></td>
+                    <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.72rem;">CRM#847510</code></td>
+                    <td style="font-weight:500;">Garbage overflow near market</td>
+                    <td><span class="badge badge-teal">Sanitation</span></td>
+                    <td><span class="badge badge-orange">High</span></td>
+                    <td style="color:var(--text-muted);font-size:.78rem;">11 Mar, 08:22</td>
+                    <td><button class="btn btn-sm btn-primary assign-btn" data-id="CRM#847510">Assign →</button></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="rowCheck" style="cursor:pointer;" /></td>
+                    <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.72rem;">CRM#847509</code></td>
+                    <td style="font-weight:500;">Deep pothole on Ring Road</td>
+                    <td><span class="badge badge-blue">Roads</span></td>
+                    <td><span class="badge badge-red">Urgent</span></td>
+                    <td style="color:var(--text-muted);font-size:.78rem;">11 Mar, 07:55</td>
+                    <td><button class="btn btn-sm btn-primary assign-btn" data-id="CRM#847509">Assign →</button></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="rowCheck" style="cursor:pointer;" /></td>
+                    <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.72rem;">CRM#847508</code></td>
+                    <td style="font-weight:500;">Loud construction noise past 10 PM</td>
+                    <td><span class="badge badge-purple">Noise</span></td>
+                    <td><span class="badge badge-blue">Medium</span></td>
+                    <td style="color:var(--text-muted);font-size:.78rem;">10 Mar, 22:40</td>
+                    <td><button class="btn btn-sm btn-primary assign-btn" data-id="CRM#847508">Assign →</button></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="rowCheck" style="cursor:pointer;" /></td>
+                    <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.72rem;">CRM#847507</code></td>
+                    <td style="font-weight:500;">No water supply for 3 days</td>
+                    <td><span class="badge badge-teal">Water</span></td>
+                    <td><span class="badge badge-red">Urgent</span></td>
+                    <td style="color:var(--text-muted);font-size:.78rem;">10 Mar, 19:15</td>
+                    <td><button class="btn btn-sm btn-primary assign-btn" data-id="CRM#847507">Assign →</button></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="rowCheck" style="cursor:pointer;" /></td>
+                    <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.72rem;">CRM#847506</code></td>
+                    <td style="font-weight:500;">Stray dogs attacking children</td>
+                    <td><span class="badge badge-orange">Animals</span></td>
+                    <td><span class="badge badge-red">Urgent</span></td>
+                    <td style="color:var(--text-muted);font-size:.78rem;">10 Mar, 16:30</td>
+                    <td><button class="btn btn-sm btn-primary assign-btn" data-id="CRM#847506">Assign →</button></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="rowCheck" style="cursor:pointer;" /></td>
+                    <td><code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.15rem .45rem;border-radius:5px;font-size:.72rem;">CRM#847505</code></td>
+                    <td style="font-weight:500;">Broken streetlight on NH-7</td>
+                    <td><span class="badge badge-blue">Infrastructure</span></td>
+                    <td><span class="badge badge-orange">High</span></td>
+                    <td style="color:var(--text-muted);font-size:.78rem;">10 Mar, 14:10</td>
+                    <td><button class="btn btn-sm btn-primary assign-btn" data-id="CRM#847505">Assign →</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Escalation Panel -->
+          <div class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header">
+              <span class="card-title">🚨 Escalation Required</span>
+              <span class="badge badge-red">4 overdue</span>
+            </div>
+            <div class="esc-item">
+              <div class="esc-icon">⏰</div>
+              <div class="esc-body">
+                <div class="esc-title">CRM#847052 — Stray dog near school <span class="overdue-badge">+18h overdue</span></div>
+                <div class="esc-meta">Assigned to Animals Dept · Priority: High · Filed 8 Mar 2025</div>
+              </div>
+              <button class="btn btn-sm" style="background:#ef4444;color:#fff;padding:.3rem .85rem;border-radius:8px;border:none;">Escalate Now</button>
+            </div>
+            <div class="esc-item">
+              <div class="esc-icon">⏰</div>
+              <div class="esc-body">
+                <div class="esc-title">CRM#846412 — Open sewage drain <span class="overdue-badge">+36h overdue</span></div>
+                <div class="esc-meta">Assigned to Sanitation Wing · Priority: Urgent · Filed 25 Feb</div>
+              </div>
+              <button class="btn btn-sm" style="background:#ef4444;color:#fff;padding:.3rem .85rem;border-radius:8px;border:none;">Escalate Now</button>
+            </div>
+            <div class="esc-item">
+              <div class="esc-icon">⏰</div>
+              <div class="esc-body">
+                <div class="esc-title">CRM#846300 — No street lighting <span class="overdue-badge">+9h overdue</span></div>
+                <div class="esc-meta">Assigned to Infrastructure Dept · Priority: Medium</div>
+              </div>
+              <button class="btn btn-sm" style="background:#ef4444;color:#fff;padding:.3rem .85rem;border-radius:8px;border:none;">Escalate Now</button>
+            </div>
+          </div>
+
+          <!-- NGO Assignment -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">🤝 NGO Assignments (Animal Welfare)</span>
+              <span class="badge badge-purple">3 NGOs active</span>
+            </div>
+            <div class="ngo-card">
+              <div class="ngo-logo">🐾</div>
+              <div style="flex:1;">
+                <div style="font-weight:700;font-size:.875rem;">Prani Mitra Foundation</div>
+                <div style="font-size:.75rem;color:var(--text-secondary);">Speciality: Stray Animal Rescue · Rating: 4.8 ⭐</div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem;">Currently handling 5 cases</div>
+              </div>
+              <button class="btn btn-sm btn-primary">Assign Case</button>
+            </div>
+            <div class="ngo-card">
+              <div class="ngo-logo">🌿</div>
+              <div style="flex:1;">
+                <div style="font-weight:700;font-size:.875rem;">Green Paws Society</div>
+                <div style="font-size:.75rem;color:var(--text-secondary);">Speciality: Vaccination & Sterilization · Rating: 4.6 ⭐</div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem;">Currently handling 3 cases</div>
+              </div>
+              <button class="btn btn-sm btn-primary">Assign Case</button>
+            </div>
+            <div class="ngo-card">
+              <div class="ngo-logo">🏥</div>
+              <div style="flex:1;">
+                <div style="font-weight:700;font-size:.875rem;">Animal Aid Trust</div>
+                <div style="font-size:.75rem;color:var(--text-secondary);">Speciality: Emergency Treatment · Rating: 4.9 ⭐</div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem;">Currently handling 2 cases</div>
+              </div>
+              <button class="btn btn-sm btn-primary">Assign Case</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Department Capacity -->
+        <div>
+          <div class="card" style="position:sticky;top:80px;">
+            <div class="card-header">
+              <span class="card-title">🏢 Dept Capacity</span>
+            </div>
+            <div class="cap-item">
+              <div class="cap-header">
+                <span class="cap-name">Sanitation Wing</span>
+                <span class="cap-pct" style="color:var(--accent-orange);">72%</span>
+              </div>
+              <div class="cap-bar"><div class="cap-bar-fill" style="width:72%;background:var(--accent-orange);"></div></div>
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">18/25 cases active</div>
+            </div>
+            <div class="cap-item">
+              <div class="cap-header">
+                <span class="cap-name">Roads Dept</span>
+                <span class="cap-pct" style="color:#ef4444;">90%</span>
+              </div>
+              <div class="cap-bar"><div class="cap-bar-fill" style="width:90%;background:#ef4444;"></div></div>
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">27/30 cases active ⚠️ Near limit</div>
+            </div>
+            <div class="cap-item">
+              <div class="cap-header">
+                <span class="cap-name">Water Supply</span>
+                <span class="cap-pct" style="color:var(--accent-teal);">45%</span>
+              </div>
+              <div class="cap-bar"><div class="cap-bar-fill" style="width:45%;background:var(--accent-teal);"></div></div>
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">9/20 cases active</div>
+            </div>
+            <div class="cap-item">
+              <div class="cap-header">
+                <span class="cap-name">Noise Control</span>
+                <span class="cap-pct" style="color:var(--accent-blue);">55%</span>
+              </div>
+              <div class="cap-bar"><div class="cap-bar-fill" style="width:55%;background:var(--accent-blue);"></div></div>
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">11/20 cases active</div>
+            </div>
+            <div class="cap-item">
+              <div class="cap-header">
+                <span class="cap-name">Public Health</span>
+                <span class="cap-pct" style="color:var(--accent-teal);">30%</span>
+              </div>
+              <div class="cap-bar"><div class="cap-bar-fill" style="width:30%;background:var(--accent-teal);"></div></div>
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">6/20 cases active</div>
+            </div>
+            <div class="cap-item">
+              <div class="cap-header">
+                <span class="cap-name">Infrastructure</span>
+                <span class="cap-pct" style="color:#ef4444;">88%</span>
+              </div>
+              <div class="cap-bar"><div class="cap-bar-fill" style="width:88%;background:#ef4444;"></div></div>
+              <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">22/25 cases active ⚠️</div>
+            </div>
+
+            <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border-color);">
+              <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem;">Recommended for assignment:</div>
+              <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+                <span class="badge badge-teal">Water Supply</span>
+                <span class="badge badge-blue">Noise Control</span>
+                <span class="badge badge-green">Public Health</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== ASSIGN MODAL ===== -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">🔀 Assign Complaint</span>
+      <button class="modal-close" id="closeModal">✕</button>
+    </div>
+
+    <!-- Complaint Details -->
+    <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:.85rem 1rem;border:1px solid var(--border-color);margin-bottom:1.25rem;">
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;">
+        <code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.2rem .5rem;border-radius:5px;font-size:.8rem;" id="modalComplaintId">CRM#847510</code>
+        <span class="badge badge-orange" id="modalPriority">High</span>
+      </div>
+      <div style="font-weight:600;font-size:.9rem;" id="modalTitle">Garbage overflow near market</div>
+      <div style="font-size:.75rem;color:var(--text-muted);margin-top:.3rem;" id="modalMeta">Sanitation · Submitted 11 Mar 2025</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">🏢 Assign to Department</label>
+      <select class="form-control" id="deptSelect">
+        <option value="">-- Select Department --</option>
+        <option value="sanitation">Sanitation Wing · 72% capacity</option>
+        <option value="roads">Roads Department · 90% capacity ⚠️</option>
+        <option value="water">Water Supply Board · 45% capacity</option>
+        <option value="noise">Noise Control Cell · 55% capacity</option>
+        <option value="animals">Animal Welfare Unit · 60% capacity</option>
+        <option value="health">Public Health Department · 30% capacity</option>
+        <option value="infra">Infrastructure Dept · 88% capacity ⚠️</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">👤 Assign Officer</label>
+      <select class="form-control" id="officerSelect">
+        <option value="">-- Select Officer --</option>
+        <option>Ganesh Patil (Sanitation Lead)</option>
+        <option>Meena Borse (Field Officer)</option>
+        <option>Ramesh Thakur (Senior Inspector)</option>
+        <option>Kavita Joshi (Ward Supervisor)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">🎯 Priority Override</label>
+      <select class="form-control" id="priorityOverride">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high" selected>High</option>
+        <option value="urgent">Urgent</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">📝 Assignment Notes</label>
+      <textarea class="form-control" rows="3" id="assignNotes" placeholder="Add internal notes for the assigned department..."></textarea>
+    </div>
+
+    <div style="display:flex;gap:.75rem;">
+      <button class="btn btn-primary" style="flex:1;" id="confirmAssign">✅ Confirm Assignment</button>
+      <button class="btn btn-outline" id="cancelModal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script src="js/charts.js"></script>
+<script>
+  // Sidebar toggle
+  const toggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  toggle.addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); });
+
+  // Assign buttons → open modal
+  const assignModal = document.getElementById('assignModal');
+  document.querySelectorAll('.assign-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const row = btn.closest('tr');
+      document.getElementById('modalComplaintId').textContent = id;
+      document.getElementById('modalTitle').textContent = row.cells[2].textContent;
+      assignModal.classList.add('open');
+    });
+  });
+
+  document.getElementById('closeModal').addEventListener('click', () => assignModal.classList.remove('open'));
+  document.getElementById('cancelModal').addEventListener('click', () => assignModal.classList.remove('open'));
+  assignModal.addEventListener('click', e => { if (e.target === assignModal) assignModal.classList.remove('open'); });
+
+  document.getElementById('confirmAssign').addEventListener('click', () => {
+    const dept = document.getElementById('deptSelect').value;
+    if (!dept) { alert('Please select a department.'); return; }
+    assignModal.classList.remove('open');
+    CRM.Toast.success('Complaint assigned successfully!');
+  });
+
+  // Checkbox count
+  const allChecks = document.querySelectorAll('.rowCheck');
+  const selCount = document.getElementById('selCount');
+  function updateCount() {
+    const n = document.querySelectorAll('.rowCheck:checked').length;
+    selCount.textContent = n + ' complaint' + (n !== 1 ? 's' : '') + ' selected';
+  }
+  document.getElementById('selectAll').addEventListener('change', e => {
+    allChecks.forEach(cb => cb.checked = e.target.checked);
+    updateCount();
+  });
+  allChecks.forEach(cb => cb.addEventListener('change', updateCount));
+
+  // Bulk assign/escalate
+  document.getElementById('assignSelected').addEventListener('click', () => {
+    const n = document.querySelectorAll('.rowCheck:checked').length;
+    if (!n) return;
+    CRM.Toast.info(`Bulk assigning ${n} complaints...`);
+  });
+  document.getElementById('escalateSelected').addEventListener('click', () => {
+    const n = document.querySelectorAll('.rowCheck:checked').length;
+    if (!n) return;
+    CRM.Toast.warning(`Escalating ${n} complaints to Head Department`);
+  });
+
+  // Filter pills
+  document.querySelectorAll('.filter-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      pill.closest('.filter-row').querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

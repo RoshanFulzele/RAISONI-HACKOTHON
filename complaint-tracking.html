@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Complaint – CivicConnect CRM</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <style>
+    .dashboard-layout { display: flex; min-height: 100vh; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .card-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; }
+
+    /* Search Box */
+    .search-box-large {
+      display: flex; gap: .75rem; margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .search-box-large input {
+      flex: 1; min-width: 220px;
+      background: var(--bg-card); border: 2px solid var(--border-color);
+      border-radius: 14px; padding: .85rem 1.25rem; color: var(--text-primary);
+      font-size: 1rem; transition: all .2s; font-family: var(--font-primary);
+    }
+    .search-box-large input:focus { border-color: var(--accent-blue); outline: none; background: rgba(0,212,255,.03); }
+    .search-box-large button { padding: .85rem 2rem; }
+
+    /* Details grid */
+    .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .detail-item { background: rgba(255,255,255,.03); border-radius: 10px; padding: .75rem 1rem; }
+    .detail-label { font-size: .72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .25rem; }
+    .detail-value { font-size: .9rem; font-weight: 600; color: var(--text-primary); }
+
+    /* Tracking layout */
+    .tracking-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
+
+    /* Activity feed */
+    .activity-item {
+      display: flex; gap: .75rem; padding: .75rem; border-radius: 10px;
+      background: rgba(255,255,255,.02); border: 1px solid var(--border-color);
+      margin-bottom: .75rem;
+    }
+    .activity-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .activity-text { font-size: .82rem; color: var(--text-secondary); }
+    .activity-text strong { color: var(--text-primary); }
+    .activity-time { font-size: .72rem; color: var(--text-muted); margin-top: .2rem; }
+
+    /* Star rating */
+    .star-rating { display: flex; gap: .35rem; cursor: pointer; }
+    .star { font-size: 1.5rem; color: var(--text-muted); transition: color .15s; cursor: pointer; }
+    .star.active { color: #fbbf24; }
+
+    /* Share / Download buttons */
+    .action-row { display: flex; gap: .75rem; flex-wrap: wrap; }
+
+    /* Dept card */
+    .dept-card { background: rgba(255,255,255,.03); border-radius: 12px; padding: 1rem; border: 1px solid var(--border-color); }
+    .dept-card .dept-icon { font-size: 2rem; margin-bottom: .5rem; }
+    .dept-card .dept-name { font-weight: 700; font-size: .875rem; }
+    .dept-card .dept-detail { font-size: .78rem; color: var(--text-secondary); }
+
+    /* Status pill top */
+    .status-hero { display: inline-flex; align-items: center; gap: .5rem; padding: .4rem 1rem; border-radius: 100px; font-size: .82rem; font-weight: 700; }
+    .status-hero.processing { background: rgba(0,212,255,.12); color: var(--accent-blue); border: 1px solid rgba(0,212,255,.3); }
+
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.6); z-index: 99; backdrop-filter: blur(4px);
+    }
+    .sidebar-overlay.active { display: block; }
+
+    @media (max-width: 1024px) { .tracking-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .details-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="nav-logo" style="width:38px;height:38px;background:var(--gradient-primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;color:#fff;flex-shrink:0;">CC</div>
+      <div>
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:.9rem;">CivicConnect</div>
+        <div style="font-size:.68rem;color:var(--accent-blue);">GovTech Platform</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main Menu</div>
+      <a href="citizen-dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="complaint-submission.html" class="nav-item"><span class="nav-icon">📝</span> Submit Complaint</a>
+      <a href="complaint-tracking.html" class="nav-item active"><span class="nav-icon">🔍</span> Track Complaint</a>
+      <a href="complaint-history.html" class="nav-item"><span class="nav-icon">📋</span> Complaint History</a>
+      <div class="nav-section-title">Account</div>
+      <a href="#" class="nav-item"><span class="nav-icon">🔔</span> Notifications <span class="nav-badge">3</span></a>
+      <a href="#" class="nav-item"><span class="nav-icon">👤</span> Profile</a>
+      <a href="customer-support.html" class="nav-item"><span class="nav-icon">❓</span> Help & Support</a>
+      <div style="margin-top:auto;padding-top:2rem;">
+        <a href="login.html" class="nav-item" style="color:#ef4444;"><span class="nav-icon">🚪</span> Sign Out</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main-content">
+    <div class="topbar">
+      <button id="sidebarToggle" data-sidebar-toggle style="background:none;border:none;color:var(--text-secondary);font-size:1.3rem;cursor:pointer;">☰</button>
+      <div class="topbar-search">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search complaints, IDs..." />
+      </div>
+      <div class="topbar-actions">
+        <button class="notif-btn">🔔 <span class="notif-dot"></span></button>
+        <div class="user-avatar-btn">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;">RS</div>
+          <div class="user-info">
+            <span class="user-name">Rahul Sharma</span>
+            <span class="user-role">Citizen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Page Header -->
+      <div style="margin-bottom:1.75rem;">
+        <div style="font-family:var(--font-heading);font-size:1.5rem;font-weight:700;margin-bottom:.3rem;">🔍 Track Your Complaint</div>
+        <div style="font-size:.875rem;color:var(--text-secondary);">Enter your complaint ID to get real-time status updates.</div>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box-large">
+        <input type="text" id="trackingInput" value="CRM#847291" placeholder="Enter your Complaint ID (e.g. CRM#847291)" />
+        <button class="btn btn-primary" id="trackBtn">🔍 Track Now</button>
+      </div>
+
+      <!-- Results (pre-filled for demo) -->
+      <div id="trackingResults">
+        <!-- Complaint Header -->
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+            <div>
+              <div style="font-family:var(--font-heading);font-size:1.2rem;font-weight:700;margin-bottom:.3rem;">
+                Garbage not collected near Bus Stand
+              </div>
+              <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+                <code style="background:rgba(0,212,255,.08);color:var(--accent-blue);padding:.2rem .6rem;border-radius:6px;font-size:.85rem;font-weight:700;">CRM#847291</code>
+                <span class="status-hero processing">⚡ Processing by Department</span>
+                <span class="badge badge-orange">🎯 Medium Priority</span>
+              </div>
+            </div>
+            <div class="action-row">
+              <button class="btn btn-secondary btn-sm" id="shareBtn">🔗 Share Link</button>
+              <button class="btn btn-outline btn-sm" id="downloadBtn">📄 Download Report</button>
+            </div>
+          </div>
+
+          <div class="details-grid">
+            <div class="detail-item">
+              <div class="detail-label">Submitted On</div>
+              <div class="detail-value">10 Mar 2025, 09:30 AM</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Category</div>
+              <div class="detail-value">🗑️ Sanitation</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Assigned To</div>
+              <div class="detail-value">Local Ward Office</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Priority</div>
+              <div class="detail-value">🔵 Medium</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Expected By</div>
+              <div class="detail-value">12 Mar 2025</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Location</div>
+              <div class="detail-value">📍 Sector 7, Nagpur</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tracking-layout">
+          <!-- Timeline + Activity -->
+          <div>
+            <!-- Timeline Card -->
+            <div class="card" style="margin-bottom:1.5rem;">
+              <div class="card-header">
+                <span class="card-title">📍 Complaint Journey</span>
+                <span class="badge badge-blue">5 Stages</span>
+              </div>
+              <ul class="timeline">
+                <li class="timeline-item completed">
+                  <div class="timeline-content">
+                    <div class="timeline-title">✅ Complaint Submitted</div>
+                    <div class="timeline-time">10 Mar 2025, 09:30 AM</div>
+                    <div class="timeline-desc">Your complaint has been successfully registered in the CivicConnect system. Tracking ID assigned: CRM#847291.</div>
+                  </div>
+                </li>
+                <li class="timeline-item completed">
+                  <div class="timeline-content">
+                    <div class="timeline-title">✅ Assigned to Local Ward Office</div>
+                    <div class="timeline-time">10 Mar 2025, 11:15 AM</div>
+                    <div class="timeline-desc">Complaint auto-routed to the Sanitation Wing of Local Ward Office, Sector 7. Officer: Mr. Ganesh Patil assigned.</div>
+                  </div>
+                </li>
+                <li class="timeline-item active">
+                  <div class="timeline-content">
+                    <div class="timeline-title">⚡ Processing by Department</div>
+                    <div class="timeline-time">Started 11 Mar 2025, 10:00 AM</div>
+                    <div class="timeline-desc">Field officer has visited the location. Garbage collection vehicle scheduled for tomorrow morning.</div>
+                    <div style="margin-top:.5rem;padding:.5rem .75rem;background:rgba(0,212,255,.06);border-radius:8px;font-size:.78rem;color:var(--accent-blue);">
+                      🕐 In progress — Expected completion: 12 Mar 2025
+                    </div>
+                  </div>
+                </li>
+                <li class="timeline-item pending">
+                  <div class="timeline-content">
+                    <div class="timeline-title">⏳ Escalated to Head Department</div>
+                    <div class="timeline-time">Pending — not yet reached</div>
+                    <div class="timeline-desc" style="color:var(--text-muted);">Will escalate automatically if not resolved by 13 Mar 2025, 11:59 PM.</div>
+                  </div>
+                </li>
+                <li class="timeline-item pending">
+                  <div class="timeline-content">
+                    <div class="timeline-title">⏳ Issue Resolved</div>
+                    <div class="timeline-time">Pending — awaiting completion</div>
+                    <div class="timeline-desc" style="color:var(--text-muted);">Resolution confirmation and closure report will be sent via SMS/email.</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="card" style="margin-bottom:1.5rem;">
+              <div class="card-header">
+                <span class="card-title">📋 Activity Log</span>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">👷</div>
+                <div>
+                  <div class="activity-text"><strong>Field Officer Visit</strong> — Officer Ganesh Patil confirmed on-site inspection at Sector 7 bus stand.</div>
+                  <div class="activity-time">11 Mar 2025, 10:45 AM</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">📞</div>
+                <div>
+                  <div class="activity-text"><strong>Citizen Called</strong> — Support team followed up with Rahul Sharma (complainant). Issue confirmed active.</div>
+                  <div class="activity-time">10 Mar 2025, 3:00 PM</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">📋</div>
+                <div>
+                  <div class="activity-text"><strong>Department Acknowledged</strong> — Sanitation Wing acknowledged the complaint and initiated action plan.</div>
+                  <div class="activity-time">10 Mar 2025, 11:30 AM</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">🤖</div>
+                <div>
+                  <div class="activity-text"><strong>Auto-routed by AI</strong> — System classified complaint as Sanitation and assigned to Ward Office Sector 7.</div>
+                  <div class="activity-time">10 Mar 2025, 09:31 AM</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rate this complaint (shows when resolved) -->
+            <div class="card" id="ratingSection">
+              <div class="card-header">
+                <span class="card-title">⭐ Rate this Resolution</span>
+                <span class="badge badge-teal">Resolved</span>
+              </div>
+              <div style="font-size:.875rem;color:var(--text-secondary);margin-bottom:1rem;">How satisfied are you with the resolution of your complaint?</div>
+              <div class="star-rating" id="starRating">
+                <span class="star" data-star="1">★</span>
+                <span class="star" data-star="2">★</span>
+                <span class="star" data-star="3">★</span>
+                <span class="star active" data-star="4">★</span>
+                <span class="star" data-star="5">★</span>
+              </div>
+              <div style="margin-top:1rem;">
+                <textarea class="form-control" rows="3" placeholder="Share your feedback (optional)..."></textarea>
+              </div>
+              <button class="btn btn-primary" style="margin-top:.75rem;">Submit Feedback</button>
+            </div>
+          </div>
+
+          <!-- Right: Department + Contact Info -->
+          <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <!-- Department Info -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">🏢 Assigned Department</span>
+              </div>
+              <div class="dept-card" style="margin-bottom:.75rem;">
+                <div class="dept-icon">🗑️</div>
+                <div class="dept-name">Sanitation Wing</div>
+                <div class="dept-detail">Local Ward Office, Sector 7</div>
+                <div class="dept-detail" style="margin-top:.3rem;">📍 Nagpur Municipal Corporation</div>
+              </div>
+              <div style="font-size:.82rem;display:flex;flex-direction:column;gap:.5rem;">
+                <div style="display:flex;align-items:center;gap:.5rem;"><span>📞</span><span style="color:var(--accent-blue);">0712-234-5678</span></div>
+                <div style="display:flex;align-items:center;gap:.5rem;"><span>📧</span><span style="color:var(--text-secondary);">sanitation.s7@nmc.gov.in</span></div>
+                <div style="display:flex;align-items:center;gap:.5rem;"><span>🕐</span><span style="color:var(--text-secondary);">Mon–Sat, 9AM–6PM</span></div>
+              </div>
+            </div>
+
+            <!-- Resolution Progress -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">📊 Resolution Progress</span>
+              </div>
+              <div style="margin-bottom:.75rem;">
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.4rem;">
+                  <span style="color:var(--text-secondary);">Overall Progress</span>
+                  <span style="font-weight:700;color:var(--accent-blue);">60%</span>
+                </div>
+                <div style="height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;">
+                  <div style="height:100%;width:60%;background:var(--gradient-primary);border-radius:4px;transition:width .8s ease;"></div>
+                </div>
+              </div>
+              <div style="font-size:.78rem;color:var(--text-muted);">Stage 3 of 5 · Estimated completion in 1 day</div>
+            </div>
+
+            <!-- SLA Timer -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">⏱️ SLA Countdown</span>
+              </div>
+              <div style="text-align:center;padding:.75rem 0;">
+                <div style="font-size:2rem;font-weight:800;font-family:var(--font-heading);background:var(--gradient-secondary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;" id="slaTimer">22:14:36</div>
+                <div style="font-size:.78rem;color:var(--text-muted);margin-top:.3rem;">Remaining before auto-escalation</div>
+              </div>
+              <div style="background:rgba(0,255,200,.06);border:1px solid rgba(0,255,200,.2);border-radius:8px;padding:.6rem .75rem;font-size:.78rem;color:var(--accent-teal);">
+                🟢 Within SLA window (48 hours for Sanitation)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script src="js/charts.js"></script>
+<script>
+  // Sidebar toggle
+  const toggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  toggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  });
+
+  // Track button
+  document.getElementById('trackBtn').addEventListener('click', () => {
+    const val = document.getElementById('trackingInput').value.trim();
+    if (!val) return;
+    document.getElementById('trackingResults').style.display = 'block';
+    CRM.Toast.success('Complaint details loaded for ' + val);
+  });
+
+  // Star rating
+  const stars = document.querySelectorAll('.star');
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      const n = parseInt(star.dataset.star);
+      stars.forEach((s, i) => s.classList.toggle('active', i < n));
+    });
+    star.addEventListener('mouseover', () => {
+      const n = parseInt(star.dataset.star);
+      stars.forEach((s, i) => s.classList.toggle('active', i < n));
+    });
+  });
+
+  // SLA countdown timer
+  let totalSeconds = 22 * 3600 + 14 * 60 + 36;
+  setInterval(() => {
+    if (totalSeconds > 0) totalSeconds--;
+    const h = String(Math.floor(totalSeconds / 3600)).padStart(2,'0');
+    const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2,'0');
+    const s = String(totalSeconds % 60).padStart(2,'0');
+    const el = document.getElementById('slaTimer');
+    if (el) el.textContent = `${h}:${m}:${s}`;
+  }, 1000);
+
+  // Share button
+  document.getElementById('shareBtn').addEventListener('click', () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      CRM.Toast.success('Tracking link copied to clipboard!');
+      else alert('Link copied!');
+    });
+  });
+
+  // Download report
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    CRM.Toast.info('Report download started...');
+  });
+</script>
+</body>
+</html>

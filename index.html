@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicConnect CRM - Multilingual Citizen Complaint & Governance Platform</title>
+  <meta name="description" content="AI-powered multilingual civic complaint system with real-time tracking, automated authority assignment, and inclusive voice/image reporting." />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/landing.css" />
+</head>
+<body>
+
+<!-- Page Loader -->
+<div class="loader-overlay" id="pageLoader">
+  <div style="text-align:center">
+    <div style="width:60px;height:60px;background:linear-gradient(135deg,#00d4ff,#8b5cf6);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 1rem;animation:pulse 1.5s ease infinite">🏛️</div>
+    <div class="loader" style="margin:0 auto"></div>
+    <p style="margin-top:1rem;color:#94a3b8;font-size:0.875rem">Loading CivicConnect...</p>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="navbar" id="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">CC</div>
+    <div class="nav-brand-text">
+      <span class="brand-name">CivicConnect</span>
+      <span class="brand-tag">GovTech Platform</span>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#use-cases">Use Cases</a></li>
+    <li><a href="customer-support.html">Support</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+    <a href="complaint-submission.html" class="btn btn-primary btn-sm">Report Issue</a>
+    <div class="nav-toggle" id="navToggle">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== HERO SECTION ===================== -->
+<section class="hero-section" id="home">
+  <div class="floating-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+  <div class="grid-bg"></div>
+  <canvas id="particles-canvas"></canvas>
+
+  <div class="container hero-content">
+    <div class="hero-tag">
+      <span class="badge badge-blue animate-pulse">🚀 Next-Gen GovTech Platform</span>
+    </div>
+
+    <h1 class="hero-headline">
+      <span class="gradient-text">Multilingual</span> Citizen<br/>
+      Complaint <span class="gradient-text">&amp; Governance</span><br/>
+      <span class="hero-typed-line">CRM Platform</span>
+    </h1>
+
+    <p class="hero-tagline">
+      Break language barriers, remove bureaucracy, and empower every citizen to report 
+      civic issues in their own language — with AI-powered routing, real-time tracking, 
+      and instant escalation to the right authority.
+    </p>
+
+    <div class="hero-actions">
+      <a href="complaint-submission.html" class="btn btn-primary btn-lg morphing-btn">
+        <span>📝</span> Report a Complaint
+      </a>
+      <a href="complaint-tracking.html" class="btn btn-secondary btn-lg">
+        <span>🔍</span> Track Complaint
+      </a>
+      <a href="login.html" class="btn btn-ghost btn-lg">
+        <span>⚙️</span> Admin Portal →
+      </a>
+    </div>
+
+    <div class="hero-badges">
+      <div class="hero-badge"><span>🌍</span> 3 Languages</div>
+      <div class="hero-badge"><span>🤖</span> AI-Powered</div>
+      <div class="hero-badge"><span>⚡</span> Real-time Tracking</div>
+      <div class="hero-badge"><span>♿</span> Accessible</div>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="container">
+      <div class="hero-stats-grid">
+        <div class="hero-stat">
+          <div class="hero-stat-value counter" data-target="50000" data-suffix="+">50,000+</div>
+          <div class="hero-stat-label">Complaints Resolved</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value counter" data-target="98" data-suffix="%">98%</div>
+          <div class="hero-stat-label">Citizen Satisfaction</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value counter" data-target="24" data-suffix="h">24h</div>
+          <div class="hero-stat-label">Avg. Resolution Time</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value counter" data-target="120" data-suffix="+">120+</div>
+          <div class="hero-stat-label">Municipal Departments</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PROBLEM SECTION ===================== -->
+<section class="section problem-section" id="problem">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag reveal">⚠️ The Problem</div>
+      <h2 class="section-title reveal">Citizens Face <span>Real Barriers</span></h2>
+      <p class="section-subtitle reveal">Every day, millions of citizens struggle to report civic issues because of outdated, inaccessible government systems.</p>
+    </div>
+
+    <div class="problems-grid">
+      <div class="problem-card reveal" data-delay="0">
+        <div class="problem-icon">🗣️</div>
+        <h3>Language Barriers</h3>
+        <p>Government portals are only in English, leaving millions of Hindi and Marathi speakers unable to file complaints effectively.</p>
+        <div class="problem-stat">
+          <span class="counter" data-target="72" data-suffix="%">72%</span>
+          <span>of citizens can't use English-only portals</span>
+        </div>
+      </div>
+      <div class="problem-card reveal" data-delay="150">
+        <div class="problem-icon">📋</div>
+        <h3>Lost in Bureaucracy</h3>
+        <p>Complaints disappear into the system with no tracking, no updates, and no accountability for resolution.</p>
+        <div class="problem-stat">
+          <span class="counter" data-target="60" data-suffix="%">60%</span>
+          <span>of complaints go unresolved</span>
+        </div>
+      </div>
+      <div class="problem-card reveal" data-delay="300">
+        <div class="problem-icon">❓</div>
+        <h3>Wrong Department</h3>
+        <p>Citizens don't know which department to contact, leading to delays as complaints bounce between offices.</p>
+        <div class="problem-stat">
+          <span class="counter" data-target="45" data-suffix="%">45%</span>
+          <span>of complaints reach wrong dept.</span>
+        </div>
+      </div>
+      <div class="problem-card reveal" data-delay="450">
+        <div class="problem-icon">♿</div>
+        <h3>Accessibility Gap</h3>
+        <p>Visually impaired and disabled citizens have no way to submit complaints through current systems.</p>
+        <div class="problem-stat">
+          <span class="counter" data-target="15" data-suffix="M">15M</span>
+          <span>disabled citizens underserved</span>
+        </div>
+      </div>
+      <div class="problem-card reveal" data-delay="600">
+        <div class="problem-icon">⏳</div>
+        <h3>No Transparency</h3>
+        <p>Once submitted, citizens have zero visibility into complaint status, assigned department, or expected resolution time.</p>
+        <div class="problem-stat">
+          <span class="counter" data-target="80" data-suffix="%">80%</span>
+          <span>want real-time status updates</span>
+        </div>
+      </div>
+      <div class="problem-card reveal" data-delay="750">
+        <div class="problem-icon">🐕</div>
+        <h3>Ignored Civic Issues</h3>
+        <p>Issues like stray animals, noise complaints, and sanitation problems are regularly ignored or delayed for weeks.</p>
+        <div class="problem-stat">
+          <span class="counter" data-target="30" data-suffix=" days">30 days</span>
+          <span>avg. time to resolve stray animal complaint</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SOLUTION SECTION ===================== -->
+<section class="section solution-section" id="solution">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag reveal">✅ Our Solution</div>
+      <h2 class="section-title reveal">One Platform. <span>Every Citizen.</span></h2>
+      <p class="section-subtitle reveal">CivicConnect removes every barrier between citizens and resolution with AI-powered technology built for inclusivity.</p>
+    </div>
+
+    <div class="solution-showcase reveal">
+      <div class="solution-left">
+        <div class="solution-steps">
+          <div class="solution-step active" data-step="1">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <h4>Submit in Your Language</h4>
+              <p>Report in English, Hindi, or Marathi using text, voice, or image upload.</p>
+            </div>
+          </div>
+          <div class="solution-step" data-step="2">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <h4>AI Translates & Routes</h4>
+              <p>Our AI engine translates the complaint and automatically assigns it to the correct department.</p>
+            </div>
+          </div>
+          <div class="solution-step" data-step="3">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <h4>Real-time Tracking</h4>
+              <p>Track your complaint at every stage with live status updates and notifications.</p>
+            </div>
+          </div>
+          <div class="solution-step" data-step="4">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <h4>Auto-Escalation</h4>
+              <p>Unresolved complaints automatically escalate to higher authorities within deadline.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="solution-right">
+        <div class="solution-mockup">
+          <div class="mockup-header">
+            <div class="mockup-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="mockup-title">CivicConnect Portal</div>
+          </div>
+          <div class="mockup-content" id="solutionMockup">
+            <div class="mockup-step active" id="mockStep1">
+              <div class="mockup-form">
+                <div class="lang-pills">
+                  <span class="lang-pill active">🇮🇳 English</span>
+                  <span class="lang-pill">हिंदी</span>
+                  <span class="lang-pill">मराठी</span>
+                </div>
+                <div class="mock-input">Garbage not collected for 3 days...</div>
+                <div class="mock-btns">
+                  <span class="mock-btn">🎤 Voice</span>
+                  <span class="mock-btn">📷 Image</span>
+                  <span class="mock-btn primary">Submit →</span>
+                </div>
+              </div>
+            </div>
+            <div class="mockup-step" id="mockStep2">
+              <div class="ai-processing">
+                <div class="ai-icon">🤖</div>
+                <div class="ai-text">AI Processing...</div>
+                <div class="ai-steps">
+                  <div class="ai-step done">✅ Language Detected: English</div>
+                  <div class="ai-step done">✅ Category: Sanitation</div>
+                  <div class="ai-step active">⚡ Routing to Municipal Sanitation Dept.</div>
+                </div>
+              </div>
+            </div>
+            <div class="mockup-step" id="mockStep3">
+              <div class="tracking-preview">
+                <div class="track-id">🎫 CRM#847291</div>
+                <div class="track-steps">
+                  <div class="track-step done">✅ Submitted</div>
+                  <div class="track-step done">✅ Assigned</div>
+                  <div class="track-step active">⚡ Processing</div>
+                  <div class="track-step">⏳ Resolution</div>
+                </div>
+              </div>
+            </div>
+            <div class="mockup-step" id="mockStep4">
+              <div class="escalation-preview">
+                <div class="esc-badge">🚨 Auto-Escalated</div>
+                <p>Complaint escalated to Head Department after 48h deadline exceeded</p>
+                <div class="esc-chain">
+                  <span>Ward Office</span>
+                  <span>→</span>
+                  <span>Municipal Dept.</span>
+                  <span>→</span>
+                  <span class="active">City Authority</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FEATURES SECTION ===================== -->
+<section class="section features-section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag reveal">⚙️ Platform Features</div>
+      <h2 class="section-title reveal">Everything You Need <span>in One Place</span></h2>
+      <p class="section-subtitle reveal">A comprehensive civic governance platform built for modern smart cities.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal" data-delay="0">
+        <div class="feature-icon" style="background:rgba(0,212,255,0.15)">🌐</div>
+        <h3>Multilingual Submission</h3>
+        <p>Submit complaints in English, Hindi, or Marathi. Our AI ensures every complaint reaches officials in their working language.</p>
+        <div class="feature-tags">
+          <span class="badge badge-blue">English</span>
+          <span class="badge badge-blue">हिंदी</span>
+          <span class="badge badge-blue">मराठी</span>
+        </div>
+      </div>
+
+      <div class="feature-card reveal" data-delay="100">
+        <div class="feature-icon" style="background:rgba(139,92,246,0.15)">🤖</div>
+        <h3>AI Translation Engine</h3>
+        <p>Automatic translation ensures complaints reach officials in their preferred language for faster processing.</p>
+        <div class="feature-tags">
+          <span class="badge badge-purple">NLP Processing</span>
+          <span class="badge badge-purple">Auto-Route</span>
+        </div>
+      </div>
+
+      <div class="feature-card reveal" data-delay="200">
+        <div class="feature-icon" style="background:rgba(0,255,200,0.15)">📡</div>
+        <h3>Real-Time Tracking</h3>
+        <p>Visual complaint journey from submission to resolution with live status updates at every stage.</p>
+        <div class="feature-tags">
+          <span class="badge badge-teal">Live Updates</span>
+          <span class="badge badge-teal">Notifications</span>
+        </div>
+      </div>
+
+      <div class="feature-card reveal" data-delay="300">
+        <div class="feature-icon" style="background:rgba(251,146,60,0.15)">🏛️</div>
+        <h3>Smart Authority Assignment</h3>
+        <p>AI automatically routes complaints to the correct municipal department — no more wrong departments.</p>
+        <div class="feature-tags">
+          <span class="badge badge-orange">Auto-Assign</span>
+          <span class="badge badge-orange">Smart Routing</span>
+        </div>
+      </div>
+
+      <div class="feature-card reveal" data-delay="400">
+        <div class="feature-icon" style="background:rgba(244,114,182,0.15)">♿</div>
+        <h3>Accessible Design</h3>
+        <p>Voice complaint submission, image upload, and text-to-speech support for visually impaired and disabled citizens.</p>
+        <div class="feature-tags">
+          <span class="badge badge-pink">Voice Input</span>
+          <span class="badge badge-pink">Image Upload</span>
+        </div>
+      </div>
+
+      <div class="feature-card reveal" data-delay="500">
+        <div class="feature-icon" style="background:rgba(239,68,68,0.15)">🚨</div>
+        <h3>Smart Escalation</h3>
+        <p>Unresolved complaints automatically escalate to higher authorities if deadlines are not met.</p>
+        <div class="feature-tags">
+          <span class="badge badge-red">Auto-Escalate</span>
+          <span class="badge badge-red">Deadline Alerts</span>
+        </div>
+      </div>
+
+      <div class="feature-card reveal" data-delay="600">
+        <div class="feature-icon" style="background:rgba(34,197,94,0.15)">🐕</div>
+        <h3>NGO Integration</h3>
+        <p>Street animal complaints are automatically forwarded to registered animal welfare NGOs for humane resolution.</p>
+        <div class="feature-tags">
+          <span class="badge badge-green">NGO Connect</span>
+          <span class="badge badge-green">Animal Welfare</span>
+        </div>
+      </div>
+
+      <div class="feature-card reveal" data-delay="700">
+        <div class="feature-icon" style="background:rgba(0,212,255,0.15)">📊</div>
+        <h3>Civic Analytics</h3>
+        <p>Government dashboards with heatmaps, resolution rates, department performance, and citizen satisfaction metrics.</p>
+        <div class="feature-tags">
+          <span class="badge badge-blue">Charts</span>
+          <span class="badge badge-blue">Heatmaps</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section class="section how-section" id="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag reveal">📍 How It Works</div>
+      <h2 class="section-title reveal">Simple for Citizens, <span>Powerful for Government</span></h2>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-step reveal" data-delay="0">
+        <div class="how-step-number">1</div>
+        <div class="how-step-icon">📝</div>
+        <h3>Submit</h3>
+        <p>Report your civic issue in any language using text, voice, or photos from your phone</p>
+      </div>
+      <div class="how-connector reveal" data-delay="100"></div>
+      <div class="how-step reveal" data-delay="200">
+        <div class="how-step-number">2</div>
+        <div class="how-step-icon">🤖</div>
+        <h3>AI Processes</h3>
+        <p>Our AI translates, categorizes, and routes the complaint to the right department automatically</p>
+      </div>
+      <div class="how-connector reveal" data-delay="300"></div>
+      <div class="how-step reveal" data-delay="400">
+        <div class="how-step-number">3</div>
+        <div class="how-step-icon">🏛️</div>
+        <h3>Department Acts</h3>
+        <p>The assigned department receives the complaint and begins resolution within the set deadline</p>
+      </div>
+      <div class="how-connector reveal" data-delay="500"></div>
+      <div class="how-step reveal" data-delay="600">
+        <div class="how-step-number">4</div>
+        <div class="how-step-icon">✅</div>
+        <h3>Resolved</h3>
+        <p>You receive real-time updates and a resolution notification with feedback option</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== USE CASES SECTION ===================== -->
+<section class="section usecases-section" id="use-cases">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag reveal">🏙️ Real Use Cases</div>
+      <h2 class="section-title reveal">Solving <span>Real Civic Problems</span></h2>
+      <p class="section-subtitle reveal">See how CivicConnect handles the most common civic complaints in your city.</p>
+    </div>
+
+    <div class="usecases-grid">
+
+      <div class="usecase-card reveal" data-delay="0">
+        <div class="usecase-header">
+          <div class="usecase-icon">🗑️</div>
+          <div>
+            <h4>Garbage Collection Delay</h4>
+            <span class="badge badge-orange">Sanitation</span>
+          </div>
+        </div>
+        <div class="usecase-flow">
+          <div class="flow-item">👤 Citizen reports: "Garbage not picked up for 3 days"</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🤖 AI routes to Municipal Sanitation Department</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">📅 Resolved within 24 hours</div>
+        </div>
+        <div class="usecase-deadline">
+          <span>⏰ SLA:</span> <strong>24–48 hours</strong>
+        </div>
+      </div>
+
+      <div class="usecase-card reveal" data-delay="150">
+        <div class="usecase-header">
+          <div class="usecase-icon">🐕</div>
+          <div>
+            <h4>Stray Animal Rescue</h4>
+            <span class="badge badge-green">NGO Routed</span>
+          </div>
+        </div>
+        <div class="usecase-flow">
+          <div class="flow-item">👤 Report: "Injured dog near market"</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🤖 Auto-forwarded to Animal Welfare NGO</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🐾 Rescue team dispatched within 24h</div>
+        </div>
+        <div class="usecase-deadline">
+          <span>⏰ SLA:</span> <strong>Within 24 hours</strong>
+        </div>
+      </div>
+
+      <div class="usecase-card reveal" data-delay="300">
+        <div class="usecase-header">
+          <div class="usecase-icon">🔊</div>
+          <div>
+            <h4>Noise Complaint at Night</h4>
+            <span class="badge badge-purple">Urgent</span>
+          </div>
+        </div>
+        <div class="usecase-flow">
+          <div class="flow-item">👤 Voice report: "Loud party at 2AM, Sector 5"</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🤖 Routes to Noise Control Authority</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🚔 Officers dispatched same night</div>
+        </div>
+        <div class="usecase-deadline">
+          <span>⏰ SLA:</span> <strong>Immediate / Same day</strong>
+        </div>
+      </div>
+
+      <div class="usecase-card reveal" data-delay="450">
+        <div class="usecase-header">
+          <div class="usecase-icon">🚗</div>
+          <div>
+            <h4>Illegal Parking</h4>
+            <span class="badge badge-blue">Traffic</span>
+          </div>
+        </div>
+        <div class="usecase-flow">
+          <div class="flow-item">📷 Photo upload of illegally parked vehicle</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🤖 Routes to Traffic & Parking Authority</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🏷️ Fine issued, vehicle removed in 12h</div>
+        </div>
+        <div class="usecase-deadline">
+          <span>⏰ SLA:</span> <strong>Within 12 hours</strong>
+        </div>
+      </div>
+
+      <div class="usecase-card reveal" data-delay="600">
+        <div class="usecase-header">
+          <div class="usecase-icon">🚻</div>
+          <div>
+            <h4>Public Washroom Cleanliness</h4>
+            <span class="badge badge-teal">Public Health</span>
+          </div>
+        </div>
+        <div class="usecase-flow">
+          <div class="flow-item">👤 Report in Hindi: "सार्वजनिक शौचालय गंदा है"</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🤖 Translates & routes to Public Health Dept.</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🧹 Cleaning team deployed in 6h</div>
+        </div>
+        <div class="usecase-deadline">
+          <span>⏰ SLA:</span> <strong>6–12 hours</strong>
+        </div>
+      </div>
+
+      <div class="usecase-card reveal" data-delay="750">
+        <div class="usecase-header">
+          <div class="usecase-icon">🛣️</div>
+          <div>
+            <h4>Road Damage / Potholes</h4>
+            <span class="badge badge-red">Infrastructure</span>
+          </div>
+        </div>
+        <div class="usecase-flow">
+          <div class="flow-item">📷 Photo of damaged road uploaded</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🤖 Routes to Public Works Department</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">🔧 Repair scheduled within 72 hours</div>
+        </div>
+        <div class="usecase-deadline">
+          <span>⏰ SLA:</span> <strong>72 hours</strong>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== IMPACT SECTION ===================== -->
+<section class="section impact-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag reveal">📈 Impact</div>
+      <h2 class="section-title reveal">Transforming <span>Civic Governance</span></h2>
+    </div>
+    <div class="impact-grid">
+      <div class="impact-card reveal" data-delay="0">
+        <div class="impact-number counter gradient-text" data-target="50000" data-suffix="+">50,000+</div>
+        <div class="impact-label">Complaints Resolved</div>
+        <div class="progress-bar-container" style="margin-top:0.75rem">
+          <div class="progress-bar" data-width="85%"></div>
+        </div>
+      </div>
+      <div class="impact-card reveal" data-delay="150">
+        <div class="impact-number counter gradient-text" data-target="87" data-suffix="%">87%</div>
+        <div class="impact-label">Resolution Rate</div>
+        <div class="progress-bar-container" style="margin-top:0.75rem">
+          <div class="progress-bar" data-width="87%"></div>
+        </div>
+      </div>
+      <div class="impact-card reveal" data-delay="300">
+        <div class="impact-number counter gradient-text" data-target="3" data-suffix=" Languages">3</div>
+        <div class="impact-label">Supported Languages</div>
+        <div class="progress-bar-container" style="margin-top:0.75rem">
+          <div class="progress-bar" data-width="60%"></div>
+        </div>
+      </div>
+      <div class="impact-card reveal" data-delay="450">
+        <div class="impact-number counter gradient-text" data-target="120" data-suffix="+">120+</div>
+        <div class="impact-label">Partner Departments</div>
+        <div class="progress-bar-container" style="margin-top:0.75rem">
+          <div class="progress-bar" data-width="75%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA SECTION ===================== -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card reveal">
+      <div class="cta-bg-shapes">
+        <div class="cta-shape"></div>
+        <div class="cta-shape"></div>
+      </div>
+      <div class="cta-content">
+        <h2>Ready to Make Your City Better?</h2>
+        <p>Join thousands of citizens who have successfully resolved their civic complaints using CivicConnect.</p>
+        <div class="cta-actions">
+          <a href="complaint-submission.html" class="btn btn-primary btn-lg">📝 Report a Complaint Now</a>
+          <a href="complaint-tracking.html" class="btn btn-outline btn-lg">🔍 Track Existing Complaint</a>
+        </div>
+        <div class="cta-note">
+          <span>✅ Free for all citizens</span>
+          <span>•</span>
+          <span>✅ Available 24/7</span>
+          <span>•</span>
+          <span>✅ 3 Languages Supported</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-brand" style="margin-bottom:1rem">
+          <div class="nav-logo">CC</div>
+          <div class="nav-brand-text">
+            <span class="brand-name">CivicConnect</span>
+            <span class="brand-tag">GovTech Platform</span>
+          </div>
+        </div>
+        <p>AI-powered multilingual civic complaint management system for modern smart cities.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter">🐦</a>
+          <a href="#" aria-label="LinkedIn">💼</a>
+          <a href="#" aria-label="GitHub">💻</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="complaint-submission.html">Submit Complaint</a></li>
+          <li><a href="complaint-tracking.html">Track Complaint</a></li>
+          <li><a href="complaint-history.html">Complaint History</a></li>
+          <li><a href="citizen-dashboard.html">Citizen Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Government</h4>
+        <ul>
+          <li><a href="admin-dashboard.html">Admin Dashboard</a></li>
+          <li><a href="authority-assignment.html">Authority Assignment</a></li>
+          <li><a href="login.html">Admin Login</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="customer-support.html">Help Center</a></li>
+          <li><a href="customer-support.html">Live Chat</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Accessibility</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 CivicConnect — Raisoni Hackathon Project. Built for smart city governance.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Accessibility</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast container -->
+<div class="toast-container"></div>
+
+<script src="js/main.js"></script>
+<script>
+  // Solution showcase step animation
+  let currentStep = 1;
+  const totalSteps = 4;
+
+  function showStep(step) {
+    document.querySelectorAll('.solution-step').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.mockup-step').forEach(s => s.classList.remove('active'));
+    const stepEl = document.querySelector(`.solution-step[data-step="${step}"]`);
+    const mockEl = document.getElementById(`mockStep${step}`);
+    if (stepEl) stepEl.classList.add('active');
+    if (mockEl) mockEl.classList.add('active');
+    currentStep = step;
+  }
+
+  // Auto-cycle steps
+  setInterval(() => {
+    currentStep = (currentStep % totalSteps) + 1;
+    showStep(currentStep);
+  }, 3000);
+
+  // Click to change steps
+  document.querySelectorAll('.solution-step').forEach(step => {
+    step.addEventListener('click', () => showStep(parseInt(step.dataset.step)));
+  });
+</script>
+</body>
+</html>
