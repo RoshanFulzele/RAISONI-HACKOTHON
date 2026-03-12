@@ -467,13 +467,15 @@ function initVoiceInput() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       btn.title = 'Voice input not supported in this browser';
       btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
       return;
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
-    recognition.interimResults = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-IN';
 
     let isListening = false;
 
@@ -482,34 +484,49 @@ function initVoiceInput() {
         recognition.stop();
         return;
       }
-      recognition.start();
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        if (typeof Toast !== 'undefined') Toast.error('Voice input requires a secure (HTTPS) connection.');
+        else alert('Voice input requires a secure (HTTPS) connection.');
+        return;
+      }
+      try {
+        recognition.start();
+      } catch (e) {
+        if (typeof Toast !== 'undefined') Toast.error('Could not start voice input. Please try again.');
+        else alert('Could not start voice input. Please try again.');
+      }
     });
 
     recognition.onstart = () => {
       isListening = true;
       btn.classList.add('listening');
       btn.innerHTML = '🔴 Stop';
-      Toast.info('Listening... Speak your complaint');
+      if (typeof Toast !== 'undefined') Toast.info('Listening... Speak your complaint');
     };
 
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results)
         .map(r => r[0].transcript).join('');
-      target.value = transcript;
+      target.value = target.value ? target.value + ' ' + transcript : transcript;
     };
 
     recognition.onend = () => {
       isListening = false;
       btn.classList.remove('listening');
       btn.innerHTML = '🎤 Voice';
-      Toast.success('Voice input captured!');
+      if (typeof Toast !== 'undefined') Toast.success('Voice input captured!');
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
       isListening = false;
       btn.classList.remove('listening');
       btn.innerHTML = '🎤 Voice';
-      Toast.error('Voice input failed. Please try again.');
+      let msg = 'Voice input failed. Please try again.';
+      if (event.error === 'no-speech') msg = 'No speech detected. Please try again.';
+      else if (event.error === 'audio-capture') msg = 'No microphone found. Please check your device.';
+      else if (event.error === 'not-allowed') msg = 'Microphone access denied. Please allow microphone permission.';
+      if (typeof Toast !== 'undefined') Toast.error(msg);
+      else alert(msg);
     };
   });
 }
